@@ -1,0 +1,49 @@
+{
+  "insight_categories": [
+    {
+      "slug": "legal-update",
+      "name_en": "Legal Update",
+      "name_id": "Pembaruan Hukum"
+    },
+    {
+      "slug": "bankruptcy",
+      "name_en": "Bankruptcy",
+      "name_id": "Kepailitan"
+    },
+    {
+      "slug": "pkpu",
+      "name_en": "PKPU",
+      "name_id": "PKPU"
+    },
+    {
+      "slug": "restructuring",
+      "name_en": "Restructuring",
+      "name_id": "Restrukturisasi"
+    },
+    {
+      "slug": "litigation",
+      "name_en": "Litigation",
+      "name_id": "Litigasi"
+    },
+    {
+      "slug": "corporate",
+      "name_en": "Corporate",
+      "name_id": "Korporasi"
+    },
+    {
+      "slug": "arbitration",
+      "name_en": "Arbitration",
+      "name_id": "Arbitrase"
+    },
+    {
+      "slug": "employment",
+      "name_en": "Employment",
+      "name_id": "Ketenagakerjaan"
+    },
+    {
+      "slug": "case-analysis",
+      "name_en": "Case Analysis",
+      "name_id": "Analisis Perkara"
+    }
+  ]
+}

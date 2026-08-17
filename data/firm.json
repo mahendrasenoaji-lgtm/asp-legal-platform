@@ -1,0 +1,35 @@
+{
+  "_source": "https://asplawyer.co.id/ (verified 2026-08-18)",
+  "legal_name": "Arifudin Susanto Partnership",
+  "short_name": "ASP",
+  "founded": "2017-05-03",
+  "founders": [
+    "Muhamad Arifudin",
+    "Herlin Susanto"
+  ],
+  "core_values": [
+    "Visionary",
+    "Integrity",
+    "Professional"
+  ],
+  "office": {
+    "name": "ASP Building",
+    "street": "Jl. Mampang Prapatan Raya No. 26, RT.2/RW.1",
+    "district": "Duren Tiga, Pancoran",
+    "city": "Jakarta Selatan",
+    "region": "DKI Jakarta",
+    "postal_code": "12760",
+    "country": "ID",
+    "phone": "+62 21 38815231",
+    "email": "office@asplawyer.co.id",
+    "geo": null,
+    "opening_hours": null,
+    "linkedin": null
+  },
+  "claimed_metrics": {
+    "fee_earners": 40,
+    "practice_areas": 10,
+    "clients": 237,
+    "_warning": "Legacy homepage claims 40 fee earners but only 23 people are listed on /our-people/. Must be reconciled before launch."
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "_note": "10 practice areas verified on legacy site; Bankruptcy/PKPU/Restructuring split into 3 per decision D-04. 'Corporate Legal Services' intentionally omitted pending ASP confirmation.",
+  "practice_areas": [
+    {
+      "slug": "bankruptcy",
+      "name_en": "Bankruptcy",
+      "name_id": "Kepailitan",
+      "tier": "flagship",
+      "legacy_group": "Bankruptcy, PKPU & Restructuring",
+      "overview": null
+    },
+    {
+      "slug": "pkpu",
+      "name_en": "PKPU (Suspension of Debt Payment Obligations)",
+      "name_id": "PKPU",
+      "tier": "flagship",
+      "legacy_group": "Bankruptcy, PKPU & Restructuring",
+      "overview": null
+    },
+    {
+      "slug": "debt-restructuring",
+      "name_en": "Debt Restructuring",
+      "name_id": "Restrukturisasi Utang",
+      "tier": "flagship",
+      "legacy_group": "Bankruptcy, PKPU & Restructuring",
+      "overview": null
+    },
+    {
+      "slug": "commercial-litigation",
+      "name_en": "Commercial Litigation",
+      "name_id": "Litigasi Komersial",
+      "tier": "dispute",
+      "legacy_group": "Commercial Litigation",
+      "overview": null
+    },
+    {
+      "slug": "civil-litigation",
+      "name_en": "Civil Litigation",
+      "name_id": "Litigasi Perdata",
+      "tier": "dispute",
+      "legacy_group": "Civil Litigation",
+      "overview": null
+    },
+    {
+      "slug": "criminal-litigation",
+      "name_en": "Criminal Litigation",
+      "name_id": "Litigasi Pidana",
+      "tier": "dispute",
+      "legacy_group": "Criminal Litigation",
+      "overview": null
+    },
+    {
+      "slug": "arbitration",
+      "name_en": "Arbitration",
+      "name_id": "Arbitrase",
+      "tier": "dispute",
+      "legacy_group": "Arbitration",
+      "overview": null
+    },
+    {
+      "slug": "dispute-resolution",
+      "name_en": "Dispute Resolution",
+      "name_id": "Penyelesaian Sengketa",
+      "tier": "dispute",
+      "legacy_group": "Dispute Resolution",
+      "overview": null
+    },
+    {
+      "slug": "labor-employment",
+      "name_en": "Labor & Employment",
+      "name_id": "Ketenagakerjaan",
+      "tier": "corporate",
+      "legacy_group": "Labor and Employment",
+      "overview": null
+    },
+    {
+      "slug": "capital-markets",
+      "name_en": "Capital Markets",
+      "name_id": "Pasar Modal",
+      "tier": "corporate",
+      "legacy_group": "Capital Markets",
+      "overview": null
+    },
+    {
+      "slug": "competition-antitrust",
+      "name_en": "Competition & Antitrust",
+      "name_id": "Persaingan Usaha",
+      "tier": "corporate",
+      "legacy_group": "Competition & Antitrust",
+      "overview": null
+    },
+    {
+      "slug": "islamic-law",
+      "name_en": "Islamic Law",
+      "name_id": "Hukum Islam",
+      "tier": "corporate",
+      "legacy_group": "Islamic Law",
+      "overview": null
+    }
+  ]
+}

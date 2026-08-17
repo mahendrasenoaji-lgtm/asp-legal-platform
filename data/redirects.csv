@@ -1,0 +1,23 @@
+old_path,new_path,status,note
+/about-us/,/about/firm/,301,
+/our-people/,/people/,301,
+/solutions/,/practices/,301,menu label was 'Practice Area'
+/news/,/insights/,301,legacy only held dummy posts
+/contact-us/,/contact/,301,
+/careers/,/careers/,200,unchanged
+/id/about-us/,/id/tentang/profil/,301,
+/id/our-people/,/id/tim/,301,
+/id/solutions/,/id/layanan/,301,
+/id/news/,/id/wawasan/,301,
+/id/contact-us/,/id/kontak/,301,
+/en/*,/*,301,EN stays at root
+/hello-world/,,410,WordPress default post
+/be-my-guest/,,410,theme demo post
+/nulla-magna/,,410,theme demo post
+/category/fashion/,,410,dummy taxonomy
+/category/music/,,410,dummy taxonomy
+/category/uncategorized/,,410,dummy taxonomy
+/wp-admin/*,,BLOCK,robots + WAF
+/wp-login.php,,BLOCK,robots + WAF
+/xmlrpc.php,,BLOCK,robots + WAF
+/wp-json/*,,BLOCK,robots + WAF

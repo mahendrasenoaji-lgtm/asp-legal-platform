@@ -1,0 +1,85 @@
+{
+  "_source": "https://asplawyer.co.id/about-us/ and /our-people/",
+  "industries": [
+    {
+      "slug": "manufacturing",
+      "name_en": "Manufacturing",
+      "name_id": "Manufaktur"
+    },
+    {
+      "slug": "aviation",
+      "name_en": "Aviation",
+      "name_id": "Penerbangan"
+    },
+    {
+      "slug": "shipping",
+      "name_en": "Shipping",
+      "name_id": "Pelayaran"
+    },
+    {
+      "slug": "oil-gas-energy",
+      "name_en": "Oil & Gas and Energy Exploration",
+      "name_id": "Migas & Energi"
+    },
+    {
+      "slug": "property-real-estate",
+      "name_en": "Property & Real Estate",
+      "name_id": "Properti & Real Estat"
+    },
+    {
+      "slug": "tobacco",
+      "name_en": "Tobacco",
+      "name_id": "Tembakau"
+    },
+    {
+      "slug": "plantation-palm-oil",
+      "name_en": "Plantation & Palm Oil Processing",
+      "name_id": "Perkebunan & Pengolahan Sawit"
+    },
+    {
+      "slug": "cooperatives-microfinance",
+      "name_en": "Cooperatives & Microfinance",
+      "name_id": "Koperasi & Lembaga Keuangan Mikro"
+    },
+    {
+      "slug": "umrah-hajj-travel",
+      "name_en": "Umrah and Hajj Travel",
+      "name_id": "Travel Umrah & Haji"
+    },
+    {
+      "slug": "textiles-garments",
+      "name_en": "Textiles & Garments",
+      "name_id": "Tekstil & Garmen"
+    },
+    {
+      "slug": "investment-firms",
+      "name_en": "Investment Firms",
+      "name_id": "Perusahaan Investasi"
+    },
+    {
+      "slug": "cellular-dealership",
+      "name_en": "Cellular Dealership",
+      "name_id": "Dealer Seluler"
+    },
+    {
+      "slug": "warehousing",
+      "name_en": "Warehousing",
+      "name_id": "Pergudangan"
+    },
+    {
+      "slug": "herbal-medicine",
+      "name_en": "Traditional Herbal Medicine (Jamu)",
+      "name_id": "Jamu"
+    },
+    {
+      "slug": "soe",
+      "name_en": "State-Owned Enterprises",
+      "name_id": "BUMN"
+    },
+    {
+      "slug": "listed-companies",
+      "name_en": "Publicly Listed Companies (Tbk)",
+      "name_id": "Perusahaan Terbuka (Tbk)"
+    }
+  ]
+}
