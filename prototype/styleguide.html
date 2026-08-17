@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design system — ASP | Arifudin Susanto Partnership</title>
+<meta name="description" content="ASP design tokens, contrast results and component states.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/tokens.css">
+<link rel="stylesheet" href="assets/main.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="protobar"><div class="wrap">
+<span><b>Prototype</b> — Phase 3 build, not production</span>
+<span>Phase 2 deliverable</span>
+</div></div>
+<header class="header">
+  <div class="wrap header__inner">
+    <a class="header__brand" href="index.html">ASP <small>Est. 2017</small></a>
+    <nav class="nav" aria-label="Primary"><a href="about.html">About</a><a href="people.html">People</a><a href="practices.html">Practices</a><a href="insights.html">Insights</a><a href="cases.html">Cases</a><a href="recognition.html">Recognition</a><a href="careers.html">Careers</a></nav>
+    <div class="header__actions">
+      <span class="lang"><a href="#" aria-current="true">EN</a> / <a href="#">ID</a></span>
+      <a class="btn btn--gold" href="consultation.html">Discuss your matter</a>
+      <button class="menu-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="drawer">Menu</button>
+    </div>
+  </div>
+</header>
+<div class="drawer" id="drawer" data-drawer aria-hidden="true">
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <span class="header__brand">ASP</span>
+  </div>
+  <ul class="drawer__list"><li><a href="about.html">About</a></li><li><a href="people.html">People</a></li><li><a href="practices.html">Practices</a></li><li><a href="insights.html">Insights</a></li><li><a href="cases.html">Cases</a></li><li><a href="recognition.html">Recognition</a></li><li><a href="careers.html">Careers</a></li><li><a href="contact.html">Contact</a></li></ul>
+  <div class="drawer__foot">
+    <a class="btn btn--gold" href="consultation.html">Discuss your matter</a>
+    <span class="lang"><a href="#" aria-current="true">English</a> / <a href="#">Bahasa Indonesia</a></span>
+  </div>
+</div>
+<main id="main">
+<div class="wrap"><nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span>/</span><em style='font-style:normal'>Design system</em></nav></div>
+<section class="section">
+  <div class="wrap pagehead">
+    <p class="docket">Phase 2</p>
+    <h1>Design system.</h1>
+    <p class="lead">Tokens, type scale, contrast results and component states. Everything the frontend is allowed to use.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head"><p class="docket">Colour</p><h2>Eight values, one accent used sparingly.</h2></div>
+    <div class="grid grid--4"><div class="swatch"><div class="swatch__chip" style="background:#111315"></div>
+      <div class="swatch__meta"><b>Charcoal</b>#111315<br><span class="muted">Primary surface, hero, footer</span></div></div><div class="swatch"><div class="swatch__chip" style="background:#0F2119"></div>
+      <div class="swatch__meta"><b>Forest deep</b>#0F2119<br><span class="muted">Featured practice, CTA band</span></div></div><div class="swatch"><div class="swatch__chip" style="background:#16352B"></div>
+      <div class="swatch__meta"><b>Forest</b>#16352B<br><span class="muted">Primary buttons, focus ring</span></div></div><div class="swatch"><div class="swatch__chip" style="background:#B89B5E"></div>
+      <div class="swatch__meta"><b>Gold</b>#B89B5E<br><span class="muted">Accent: rules, marks, CTA fill</span></div></div><div class="swatch"><div class="swatch__chip" style="background:#6E5A2C"></div>
+      <div class="swatch__meta"><b>Gold deep</b>#6E5A2C<br><span class="muted">Gold as text on light surfaces</span></div></div><div class="swatch"><div class="swatch__chip" style="background:#F7F5EF"></div>
+      <div class="swatch__meta"><b>Ivory</b>#F7F5EF<br><span class="muted">Page background</span></div></div><div class="swatch"><div class="swatch__chip" style="background:#FFFFFF"></div>
+      <div class="swatch__meta"><b>White</b>#FFFFFF<br><span class="muted">Cards, inputs</span></div></div><div class="swatch"><div class="swatch__chip" style="background:#1C1C1C"></div>
+      <div class="swatch__meta"><b>Ink</b>#1C1C1C<br><span class="muted">Body text</span></div></div></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head"><p class="docket">Contrast</p><h2>Measured, not assumed.</h2>
+    <p>Computed at build time. Gold on ivory fails for text, which is why gold is restricted to rules, marks and fills, and why a darker gold exists for accent text.</p></div>
+    <table class="table"><thead><tr><th>Pair</th><th>Ratio</th><th>WCAG</th><th>Use</th></tr></thead><tbody><tr>
+      <td data-label="Pair"><span style="display:inline-block;width:1.5rem;height:1.5rem;background:#F7F5EF;border:1px solid var(--rule);vertical-align:middle"></span> Ink on ivory</td>
+      <td data-label="Ratio" class="num">15.63:1</td>
+      <td data-label="Verdict" class="pass">AA</td>
+      <td data-label="Use">Body text</td>
+    </tr><tr>
+      <td data-label="Pair"><span style="display:inline-block;width:1.5rem;height:1.5rem;background:#F7F5EF;border:1px solid var(--rule);vertical-align:middle"></span> Ink muted on ivory</td>
+      <td data-label="Ratio" class="num">5.91:1</td>
+      <td data-label="Verdict" class="pass">AA</td>
+      <td data-label="Use">Secondary text</td>
+    </tr><tr>
+      <td data-label="Pair"><span style="display:inline-block;width:1.5rem;height:1.5rem;background:#F7F5EF;border:1px solid var(--rule);vertical-align:middle"></span> Gold on ivory</td>
+      <td data-label="Ratio" class="num">2.44:1</td>
+      <td data-label="Verdict" class="fail">fail</td>
+      <td data-label="Use">Text — expected to fail</td>
+    </tr><tr>
+      <td data-label="Pair"><span style="display:inline-block;width:1.5rem;height:1.5rem;background:#F7F5EF;border:1px solid var(--rule);vertical-align:middle"></span> Gold deep on ivory</td>
+      <td data-label="Ratio" class="num">6.09:1</td>
+      <td data-label="Verdict" class="pass">AA</td>
+      <td data-label="Use">Accent text</td>
+    </tr><tr>
+      <td data-label="Pair"><span style="display:inline-block;width:1.5rem;height:1.5rem;background:#111315;border:1px solid var(--rule);vertical-align:middle"></span> On-dark on charcoal</td>
+      <td data-label="Ratio" class="num">15.48:1</td>
+      <td data-label="Verdict" class="pass">AA</td>
+      <td data-label="Use">Body on dark</td>
+    </tr><tr>
+      <td data-label="Pair"><span style="display:inline-block;width:1.5rem;height:1.5rem;background:#111315;border:1px solid var(--rule);vertical-align:middle"></span> Gold on charcoal</td>
+      <td data-label="Ratio" class="num">6.99:1</td>
+      <td data-label="Verdict" class="pass">AA</td>
+      <td data-label="Use">Accent on dark</td>
+    </tr><tr>
+      <td data-label="Pair"><span style="display:inline-block;width:1.5rem;height:1.5rem;background:#111315;border:1px solid var(--rule);vertical-align:middle"></span> On-dark muted on charcoal</td>
+      <td data-label="Ratio" class="num">8.25:1</td>
+      <td data-label="Verdict" class="pass">AA</td>
+      <td data-label="Use">Secondary on dark</td>
+    </tr><tr>
+      <td data-label="Pair"><span style="display:inline-block;width:1.5rem;height:1.5rem;background:#16352B;border:1px solid var(--rule);vertical-align:middle"></span> White on forest</td>
+      <td data-label="Ratio" class="num">13.31:1</td>
+      <td data-label="Verdict" class="pass">AA</td>
+      <td data-label="Use">Primary button</td>
+    </tr><tr>
+      <td data-label="Pair"><span style="display:inline-block;width:1.5rem;height:1.5rem;background:#B89B5E;border:1px solid var(--rule);vertical-align:middle"></span> Charcoal on gold</td>
+      <td data-label="Ratio" class="num">6.99:1</td>
+      <td data-label="Verdict" class="pass">AA</td>
+      <td data-label="Use">Gold button</td>
+    </tr></tbody></table>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head"><p class="docket">Typography</p><h2>Display, body, docket.</h2>
+    <p>Cormorant Garamond carries the voice, Inter carries the reading, IBM Plex Mono carries the record — case numbers, courts, years, filters.</p></div>
+    <div class="specimen">
+      <div class="specimen__meta">Display · Cormorant Garamond 500 / clamp 2.75–5.75rem</div>
+      <div style="font-family:var(--font-display);font-size:var(--t-display);line-height:var(--lh-tight);letter-spacing:var(--ls-display)">Strategic counsel.</div>
+    </div><div class="specimen">
+      <div class="specimen__meta">H2 · Cormorant Garamond 500</div>
+      <div style="font-family:var(--font-display);font-size:var(--t-h2)">Built for complex matters</div>
+    </div><div class="specimen">
+      <div class="specimen__meta">Lead · Inter 400 / 1.5</div>
+      <div style="font-family:var(--font-body);font-size:var(--t-lead);line-height:var(--lh-lead)">A PKPU runs on a statutory clock.</div>
+    </div><div class="specimen">
+      <div class="specimen__meta">Body · Inter 400 / 1.68</div>
+      <div style="font-family:var(--font-body);font-size:var(--t-body);line-height:var(--lh-body)">The firm acts as receiver, as administrator, and as counsel to debtors and creditors.</div>
+    </div><div class="specimen">
+      <div class="specimen__meta">Docket · IBM Plex Mono 400 / 0.14em</div>
+      <div style="font-family:var(--font-docket);font-size:var(--t-docket);letter-spacing:var(--ls-docket);text-transform:uppercase;color:var(--accent-text)">Commercial Court Jakarta</div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head"><p class="docket">Components</p><h2>States.</h2></div>
+    <div class="grid grid--2">
+      <div>
+        <p class="eyebrow">Buttons</p>
+        <p style="display:flex;gap:var(--s-3);flex-wrap:wrap;margin-top:var(--s-4)">
+          <a class="btn btn--gold" href="#">Primary action</a>
+          <a class="btn btn--primary" href="#">Secondary</a>
+          <a class="btn btn--ghost" href="#">Ghost</a>
+        </p>
+        <p class="eyebrow" style="margin-top:var(--s-6)">Chips</p>
+        <div class="filters" style="margin-top:var(--s-4)">
+          <button class="chip" type="button" aria-pressed="true">Selected</button>
+          <button class="chip" type="button">Default</button>
+        </div>
+      </div>
+      <div>
+        <p class="eyebrow">Field states</p>
+        <div class="form" style="margin-top:var(--s-4)">
+          <div class="field"><label for="sg1">Default</label><input id="sg1" type="text" placeholder="Placeholder"></div>
+          <div class="field field--error"><label for="sg2">Error</label><input id="sg2" type="text" aria-invalid="true"><span class="field__error">Enter an email address we can reply to.</span></div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:var(--s-7)"><div class="empty">
+  <span class="empty__tag">Pattern</span>
+  <h3>Empty state</h3>
+  <p>Used wherever ASP content is outstanding. It says what is missing and who owns it, rather than filling the gap with invented copy.</p>
+  
+</div></div>
+  </div>
+</section>
+<section class="section cta-band">
+  <div class="wrap grid grid--aside">
+    <div>
+      <p class="docket">Legal intake</p>
+      <h2>Tell us about the matter.</h2>
+      <p>Insolvency moves on statutory clocks. If a petition has been filed against you, or you are weighing one, the earlier the assessment the wider the options.</p>
+      <a class="btn btn--gold" href="consultation.html">Discuss your matter <span aria-hidden="true">&rarr;</span></a>
+    </div>
+    <div class="disclaimer"><p>Submission of information through this website does not create an attorney-client relationship. Do not submit confidential or privileged information until such a relationship has been established.</p></div>
+  </div>
+</section>
+
+</main>
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__grid">
+      <div>
+        <div class="footer__brand">Arifudin Susanto Partnership</div>
+        <p style="color:var(--asp-on-dark-muted);font-size:var(--t-small);max-width:34ch">Advocates, receivers and administrators in bankruptcy. Jakarta, since 2017.</p>
+      </div>
+      <div>
+        <h4>Practices</h4>
+        <ul><li><a href="practice-bankruptcy.html">Bankruptcy</a></li><li><a href="practice-pkpu.html">PKPU (Suspension of Debt Payment Obligations)</a></li><li><a href="practice-debt-restructuring.html">Debt Restructuring</a></li><li><a href="practice-commercial-litigation.html">Commercial Litigation</a></li><li><a href="practice-civil-litigation.html">Civil Litigation</a></li><li><a href="practice-criminal-litigation.html">Criminal Litigation</a></li><li><a href="practices.html">All practices</a></li></ul>
+      </div>
+      <div>
+        <h4>Firm</h4>
+        <ul>
+          <li><a href="about.html">About</a></li>
+          <li><a href="people.html">People</a></li>
+          <li><a href="recognition.html">Recognition</a></li>
+          <li><a href="insights.html">Insights</a></li>
+          <li><a href="careers.html">Careers</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <ul>
+          <li>ASP Building<br>Jl. Mampang Prapatan Raya No. 26, RT.2/RW.1<br>Duren Tiga, Pancoran<br>Jakarta Selatan 12760</li>
+          <li><a href="tel:+622138815231">+62 21 38815231</a></li>
+          <li><a href="mailto:office@asplawyer.co.id">office@asplawyer.co.id</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__legal">
+      <span>&copy; <span data-year>2026</span> Arifudin Susanto Partnership. All rights reserved.</span>
+      <ul>
+        <li><a href="#">Privacy policy</a></li>
+        <li><a href="#">Terms</a></li>
+        <li><a href="#">Legal disclaimer</a></li>
+        <li><a href="#">Cookie policy</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+<script src="assets/app.js"></script>
+</body>
+</html>

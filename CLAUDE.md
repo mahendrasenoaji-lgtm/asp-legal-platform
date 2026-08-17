@@ -17,20 +17,23 @@ architecture ready for a later RAG-based legal assistant.
 
 ## Where we are
 
-**Phase 1 (Information Architecture) is complete and awaiting client sign-off.**
-Read `docs/01-information-architecture.md` in full before starting Phase 2. It contains the
-legacy site audit, final sitemap, content model, navigation model, and the 301/410 redirect map.
+All eight phases have a deliverable in `docs/`. What exists is real but uneven, and the
+difference matters:
 
-Phase order — do not skip, and produce something testable at the end of each:
+| Phase | Deliverable | Actually verified? |
+|---|---|---|
+| 1 Information Architecture | `docs/01-...` | Yes — built from a crawl of the live site |
+| 2 UI Design System | `prototype/assets/tokens.css`, `styleguide.html` | Contrast computed at build time; no browser screenshot |
+| 3 Frontend | `prototype/` — 57 pages from `build.py` | Link check passes; static prototype, not the Next.js app |
+| 4 CMS / Backend | `db/schema.sql` | Written, never migrated — no database in that environment |
+| 5 SEO | `docs/05-...`, `config/redirects.js` | Map incomplete by design; needs a full crawl |
+| 6 Security | `config/security-headers.js` | Configured, never tested against an origin |
+| 7 QA | `docs/07-...` | Plan only, plus the checks already run |
+| 8 Deployment | `docs/08-...` | Runbook only |
 
-1. Information Architecture — DONE (pending sign-off)
-2. UI Design System — NEXT
-3. Frontend
-4. CMS / Backend
-5. SEO
-6. Security
-7. QA
-8. Deployment
+The honest next step is the Next.js port (see `docs/03-frontend.md` §4), not more documents.
+Read `docs/01-information-architecture.md` and `docs/02-design-system.md` before writing
+components — the token system and the empty-state pattern are load-bearing.
 
 ## Hard rules
 

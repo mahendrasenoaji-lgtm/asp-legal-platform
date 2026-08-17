@@ -1,0 +1,18 @@
+# ASP Legal Intelligence Platform
+User-agent: *
+Allow: /
+
+# Legacy WordPress surface — removed in the rebuild
+Disallow: /wp-admin/
+Disallow: /wp-login.php
+Disallow: /xmlrpc.php
+Disallow: /wp-json/
+Disallow: /feed/
+
+# Application surface that should never be indexed
+Disallow: /admin/
+Disallow: /api/
+Disallow: /search?
+Disallow: /*?utm_
+
+Sitemap: https://asplawyer.co.id/sitemap.xml

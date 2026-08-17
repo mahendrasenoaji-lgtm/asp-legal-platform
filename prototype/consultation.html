@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Discuss your matter — ASP | Arifudin Susanto Partnership</title>
+<meta name="description" content="Legal intake form for Arifudin Susanto Partnership.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/tokens.css">
+<link rel="stylesheet" href="assets/main.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="protobar"><div class="wrap">
+<span><b>Prototype</b> — Phase 3 build, not production</span>
+<span>Form validates client-side; nothing is submitted</span>
+</div></div>
+<header class="header">
+  <div class="wrap header__inner">
+    <a class="header__brand" href="index.html">ASP <small>Est. 2017</small></a>
+    <nav class="nav" aria-label="Primary"><a href="about.html">About</a><a href="people.html">People</a><a href="practices.html">Practices</a><a href="insights.html">Insights</a><a href="cases.html">Cases</a><a href="recognition.html">Recognition</a><a href="careers.html">Careers</a></nav>
+    <div class="header__actions">
+      <span class="lang"><a href="#" aria-current="true">EN</a> / <a href="#">ID</a></span>
+      <a class="btn btn--gold" href="consultation.html">Discuss your matter</a>
+      <button class="menu-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="drawer">Menu</button>
+    </div>
+  </div>
+</header>
+<div class="drawer" id="drawer" data-drawer aria-hidden="true">
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <span class="header__brand">ASP</span>
+  </div>
+  <ul class="drawer__list"><li><a href="about.html">About</a></li><li><a href="people.html">People</a></li><li><a href="practices.html">Practices</a></li><li><a href="insights.html">Insights</a></li><li><a href="cases.html">Cases</a></li><li><a href="recognition.html">Recognition</a></li><li><a href="careers.html">Careers</a></li><li><a href="contact.html">Contact</a></li></ul>
+  <div class="drawer__foot">
+    <a class="btn btn--gold" href="consultation.html">Discuss your matter</a>
+    <span class="lang"><a href="#" aria-current="true">English</a> / <a href="#">Bahasa Indonesia</a></span>
+  </div>
+</div>
+<main id="main">
+<div class="wrap"><nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span>/</span><em style='font-style:normal'>Legal intake</em></nav></div>
+<section class="section">
+  <div class="wrap grid grid--aside">
+    <div>
+      <p class="docket">Legal intake</p>
+      <h1>Discuss your matter.</h1>
+      <p class="lead">The more precise the description, the faster the firm can tell you whether it can act and how quickly it needs to.</p>
+
+      <form class="form" data-intake novalidate style="margin-top:var(--s-7)">
+        <fieldset class="fieldset">
+          <div class="grid grid--2">
+            <div class="field">
+              <label for="name">Full name <span class="req">*</span></label>
+              <input id="name" name="name" type="text" required autocomplete="name">
+              <span class="field__error" role="alert"></span>
+            </div>
+            <div class="field">
+              <label for="company">Company</label>
+              <input id="company" name="company" type="text" autocomplete="organization">
+            </div>
+            <div class="field">
+              <label for="position">Position</label>
+              <input id="position" name="position" type="text" autocomplete="organization-title">
+            </div>
+            <div class="field">
+              <label for="email">Email <span class="req">*</span></label>
+              <input id="email" name="email" type="email" required autocomplete="email" data-error="Enter an email address we can reply to.">
+              <span class="field__error" role="alert"></span>
+            </div>
+            <div class="field">
+              <label for="phone">Phone</label>
+              <input id="phone" name="phone" type="tel" autocomplete="tel">
+            </div>
+            <div class="field">
+              <label for="matter">Matter type <span class="req">*</span></label>
+              <select id="matter" name="matter" required><option value="">Select</option><option>Bankruptcy</option><option>PKPU</option><option>Debt restructuring</option><option>Commercial dispute</option><option>Litigation</option><option>Arbitration</option><option>Corporate</option><option>Employment</option><option>Other</option></select>
+              <span class="field__error" role="alert"></span>
+            </div>
+            <div class="field">
+              <label for="role">Your role</label>
+              <select id="role" name="role"><option value="">Select</option><option>Company</option><option>Director</option><option>Shareholder</option><option>Creditor</option><option>Debtor</option><option>Investor</option><option>Individual</option><option>Other</option></select>
+            </div>
+            <div class="field">
+              <label for="urgency">Timing</label>
+              <select id="urgency" name="urgency"><option value="">Select</option><option>A petition has already been filed</option><option>Within days</option><option>Within weeks</option><option>Planning ahead</option></select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="description">Brief description <span class="req">*</span></label>
+            <textarea id="description" name="description" required></textarea>
+            <span class="hint">Outline the situation and the parties' positions. Leave out anything privileged or confidential.</span>
+            <span class="field__error" role="alert"></span>
+          </div>
+          <div class="field">
+            <label for="file">Supporting document</label>
+            <input id="file" name="file" type="file" accept=".pdf,.doc,.docx">
+            <span class="hint">PDF or Word, up to 10 MB. Files are scanned for malware and encrypted in transit.</span>
+          </div>
+        </fieldset>
+        <div class="disclaimer"><p>Submission of information through this website does not create an attorney-client relationship. Do not submit confidential or privileged information until such a relationship has been established.</p></div>
+        <div>
+          <button class="btn btn--gold" type="submit">Send enquiry</button>
+          <p data-intake-note hidden style="margin-top:var(--s-4);font-size:var(--t-small);color:var(--fg-muted)"></p>
+        </div>
+      </form>
+    </div>
+    <aside>
+      <h4>What happens next</h4>
+      <dl class="facts">
+        <div><dt>Acknowledgement</dt><dd>Within one business day.</dd></div>
+        <div><dt>Conflict check</dt><dd>Run before any substantive discussion.</dd></div>
+        <div><dt>Engagement</dt><dd>Nothing is advice until the firm has confirmed it can act and terms are agreed.</dd></div>
+      </dl>
+      <h4 style="margin-top:var(--s-7)">Prefer to call</h4>
+      <p><a class="link-underline" href="tel:+622138815231">+62 21 38815231</a></p>
+    </aside>
+  </div>
+</section>
+</main>
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__grid">
+      <div>
+        <div class="footer__brand">Arifudin Susanto Partnership</div>
+        <p style="color:var(--asp-on-dark-muted);font-size:var(--t-small);max-width:34ch">Advocates, receivers and administrators in bankruptcy. Jakarta, since 2017.</p>
+      </div>
+      <div>
+        <h4>Practices</h4>
+        <ul><li><a href="practice-bankruptcy.html">Bankruptcy</a></li><li><a href="practice-pkpu.html">PKPU (Suspension of Debt Payment Obligations)</a></li><li><a href="practice-debt-restructuring.html">Debt Restructuring</a></li><li><a href="practice-commercial-litigation.html">Commercial Litigation</a></li><li><a href="practice-civil-litigation.html">Civil Litigation</a></li><li><a href="practice-criminal-litigation.html">Criminal Litigation</a></li><li><a href="practices.html">All practices</a></li></ul>
+      </div>
+      <div>
+        <h4>Firm</h4>
+        <ul>
+          <li><a href="about.html">About</a></li>
+          <li><a href="people.html">People</a></li>
+          <li><a href="recognition.html">Recognition</a></li>
+          <li><a href="insights.html">Insights</a></li>
+          <li><a href="careers.html">Careers</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <ul>
+          <li>ASP Building<br>Jl. Mampang Prapatan Raya No. 26, RT.2/RW.1<br>Duren Tiga, Pancoran<br>Jakarta Selatan 12760</li>
+          <li><a href="tel:+622138815231">+62 21 38815231</a></li>
+          <li><a href="mailto:office@asplawyer.co.id">office@asplawyer.co.id</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__legal">
+      <span>&copy; <span data-year>2026</span> Arifudin Susanto Partnership. All rights reserved.</span>
+      <ul>
+        <li><a href="#">Privacy policy</a></li>
+        <li><a href="#">Terms</a></li>
+        <li><a href="#">Legal disclaimer</a></li>
+        <li><a href="#">Cookie policy</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+<script src="assets/app.js"></script>
+</body>
+</html>

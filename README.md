@@ -1,50 +1,68 @@
 # ASP Legal Intelligence Platform
 
-Rebuild of the Arifudin Susanto Partnership (ASP) website — a premium Indonesian law firm
-site with a legal knowledge center, lawyer profiles, case intelligence and lead generation.
+Rebuild of the Arifudin Susanto Partnership (ASP) website — an Indonesian law firm
+concentrated on bankruptcy, PKPU, debt restructuring, litigation and arbitration.
 
-Legacy site: https://asplawyer.co.id/
+Legacy site: https://asplawyer.co.id/ (WordPress, still live, still carrying WordPress demo
+posts and categories for fashion and music on its news page).
 
 ## Status
 
 | Phase | Stage | State |
 |---|---|---|
 | 1 | Information Architecture | Complete — awaiting client sign-off |
-| 2 | UI Design System | Not started |
-| 3 | Frontend | Not started |
-| 4 | CMS / Backend | Not started |
-| 5 | SEO | Not started |
-| 6 | Security | Not started |
-| 7 | QA | Not started |
-| 8 | Deployment | Not started |
+| 2 | UI Design System | Built and testable (`prototype/styleguide.html`) |
+| 3 | Frontend | Prototype: 57 static pages generated from `data/` |
+| 4 | CMS / Backend | Schema written (`db/schema.sql`); not migrated |
+| 5 | SEO | Specified; redirect config generated |
+| 6 | Security | Configured (`config/security-headers.js`); not tested |
+| 7 | QA | Plan written; link check passing, rest pending infrastructure |
+| 8 | Deployment | Runbook written; nothing deployed |
 
-No application code exists yet. This repository currently holds architecture documents
-and verified seed data.
+**Not production-ready.** Phases 6 and 7 require real infrastructure and have not been
+executed. Four content decisions are still open — see `docs/content-requests.md`.
+
+## Quick start
+
+```bash
+python3 prototype/build.py       # regenerate the 57-page prototype
+open prototype/index.html        # homepage
+open prototype/styleguide.html   # design system, with measured contrast
+python3 config/gen-redirects.py  # rebuild config/redirects.js from the CSV
+```
+
+No dependencies. The prototype is plain HTML, CSS and vanilla JS.
 
 ## Layout
 
 ```
-CLAUDE.md                             project context for Claude Code
+CLAUDE.md                    project context for Claude Code
 docs/
-  01-information-architecture.md      Phase 1 deliverable (audit, sitemap, content model, redirects)
-  content-requests.md                 what ASP still needs to supply
-data/
-  firm.json                           firm profile, office, claimed metrics
-  lawyers.json                        23 verified people (names/tiers only)
-  practice-areas.json                 12 practice areas
-  awards.json                         10 Hukumonline recognitions with source URLs
-  industries.json                     16 sectors
-  insight-categories.json             9 editorial categories
-  redirects.csv                       301 / 410 / block map
+  01-information-architecture.md   audit, sitemap, content model, redirect map
+  02-design-system.md              tokens, type, measured contrast, components
+  03-frontend.md                   what the prototype is and how it ports to Next.js
+  04-cms-backend.md                CMS choice, schema decisions, roles, API
+  05-seo.md                        metadata, structured data, bilingual, migration
+  06-security.md                   headers, upload controls, admin, infrastructure
+  07-qa.md                         test plan and launch gate
+  08-deployment.md                 topology, cutover runbook, rollback, backups
+  content-requests.md              13 items ASP still owes
+data/                        verified facts only, each with a source
+db/schema.sql                PostgreSQL schema with integrity guards
+config/                      redirects, security headers, robots, env example
+prototype/                   build.py + generated HTML + assets
 ```
 
 ## Data integrity
 
-Everything in `data/` was taken from the live ASP site on 2026-08-18 and carries a source
-reference. Fields that ASP has not supplied are `null` on purpose. Nothing here is invented —
-see the hard rules in `CLAUDE.md` before adding content.
+Everything in `data/` came from the live ASP site on 2026-08-18 and carries a source
+reference. Fields ASP has not supplied are `null` on purpose, and the prototype renders an
+empty state rather than inventing copy. Four integrity rules are enforced in the database
+itself: a practice cannot publish without a lead lawyer, an article cannot publish without a
+real author, a matter cannot publish without a public source and a named clearance, and an
+award cannot exist without the awarding body's own listing.
 
 ## Next step
 
-Client sign-off on the eight architecture decisions in §2 of the Phase 1 document, then
-Phase 2 — UI Design System.
+Client sign-off on the eight architecture decisions in §2 of the Phase 1 document, and
+answers to the four open questions. Then the Next.js port.
