@@ -46,6 +46,7 @@ docs/
   06-security.md                   headers, upload controls, admin, infrastructure
   07-qa.md                         test plan and launch gate
   08-deployment.md                 topology, cutover runbook, rollback, backups
+  editorial-calendar.md            6-month publishing plan + outline for article 1
   content-requests.md              13 items ASP still owes
 data/                        verified facts only, each with a source
 db/schema.sql                PostgreSQL schema with integrity guards

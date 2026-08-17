@@ -58,6 +58,10 @@ Four items are unresolved and must be answered by ASP. Do not paper over them:
 3. Legacy tier is **"Leaders"**; the brief says **"Counsel"**. These are real job titles.
 4. Only 2 of 23 lawyers have a biography. The other 21 profiles cannot be built without input.
 
+Article authorship is assigned in `docs/editorial-calendar.md`. Only the two partners have
+published expertise, so only they are named; every other slot is TBD and must be filled by
+ASP, not guessed.
+
 ## Verified data
 
 `data/` holds only facts scraped from the live ASP site on 2026-08-18, with source URLs:
