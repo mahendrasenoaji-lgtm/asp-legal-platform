@@ -3,20 +3,22 @@ import { StatusBar } from "../../components/StatusBar";
 import { Breadcrumbs } from "../../components/Breadcrumbs";
 import { CtaBand } from "../../components/CtaBand";
 import { PersonCard } from "../../components/PersonCard";
-import { LAWYERS } from "../../lib/data";
+import { getLawyers, isLeadershipTier } from "../../lib/data";
+import type { Lawyer } from "../../lib/types";
 
 export const metadata: Metadata = {
   title: "People",
   description: "The lawyers of Arifudin Susanto Partnership.",
 };
 
-const TIERS: [string, string, (l: (typeof LAWYERS)[number]) => boolean][] = [
+const TIERS: [string, string, (l: Lawyer) => boolean][] = [
   ["partner", "Partners", (l) => l.tier.includes("partner")],
-  ["leader", "Leadership", (l) => l.tier === "leader"],
+  ["leader", "Leadership", (l) => isLeadershipTier(l.tier)],
   ["associate", "Associates", (l) => l.tier === "associate"],
 ];
 
-export default function PeoplePage() {
+export default async function PeoplePage() {
+  const LAWYERS = await getLawyers();
   return (
     <>
       <StatusBar note="23 of 23 professionals listed; 21 biographies pending" />

@@ -4,14 +4,15 @@ import { StatusBar } from "../../../components/StatusBar";
 import { Breadcrumbs } from "../../../components/Breadcrumbs";
 import { EmptyState } from "../../../components/EmptyState";
 import { CtaBand } from "../../../components/CtaBand";
-import { AWARDS, getAward } from "../../../lib/data";
+import { getAward, getAwards } from "../../../lib/data";
 
-export function generateStaticParams() {
-  return AWARDS.map((a) => ({ slug: a.slug }));
+export async function generateStaticParams() {
+  const awards = await getAwards();
+  return awards.map((a) => ({ slug: a.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
-  const award = getAward(params.slug);
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const award = await getAward(params.slug);
   if (!award) return {};
   return {
     title: award.title,
@@ -19,8 +20,8 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   };
 }
 
-export default function AwardPage({ params }: { params: { slug: string } }) {
-  const award = getAward(params.slug);
+export default async function AwardPage({ params }: { params: { slug: string } }) {
+  const award = await getAward(params.slug);
   if (!award) notFound();
 
   return (

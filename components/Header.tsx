@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { NAV } from "../lib/data";
+import { NAV } from "../lib/constants";
 import { MobileDrawer } from "./MobileDrawer";
 
 export function Header() {

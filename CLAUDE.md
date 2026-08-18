@@ -24,8 +24,8 @@ difference matters:
 |---|---|---|
 | 1 Information Architecture | `docs/01-...` | Yes — built from a crawl of the live site |
 | 2 UI Design System | `app/tokens.css`, `/styleguide` | Contrast computed at build time; screenshotted in Chrome, matches prototype pixel-for-pixel |
-| 3 Frontend | `app/` — Next.js 14 App Router, 59 routes | `npm run build` passes; dynamic routes for lawyers/practices/awards verified in-browser (nav, breadcrumbs, drawer, intake-form validation all checked) |
-| 4 CMS / Backend | `db/schema.sql`, `db/seed.py`, `db/verify_guards.sql` | Migrated + seeded on Postgres 16; found and fixed 2 real bugs (a `STABLE`-function index that didn't build, and a search view that hid 21 of 23 published lawyers); all 4 integrity guards proven to reject bad rows. CMS editor and app wiring (`lib/data.ts`) still not done |
+| 3 Frontend | `app/` — Next.js 14 App Router, 59 routes | `npm run build` passes reading live from Postgres; dynamic routes for lawyers/practices/awards verified in-browser (nav, breadcrumbs, drawer, intake-form validation, DB-backed people/practice pages all checked) |
+| 4 CMS / Backend | `db/schema.sql`, `db/seed.py`, `db/verify_guards.sql`, `lib/data.ts`, `lib/db.ts` | Migrated + seeded on Postgres 16; found and fixed 2 real bugs (a `STABLE`-function index that didn't build, and a search view that hid 21 of 23 published lawyers); all 4 integrity guards proven to reject bad rows. `lib/data.ts` now queries Postgres directly — the app-wiring step is done. CMS editor (Payload) and the intake API are still not built |
 | 5 SEO | `docs/05-...`, `config/redirects.js` | Live site actually crawled (sitemap + link extraction + manual probing) — found the site runs TranslatePress (every URL, including junk, mirrored under `/id/`) and a missing author-archive redirect; both fixed. Search Console diff still needs ASP's own access (content request 13) |
 | 6 Security | `config/security-headers.js` | Configured, never tested against an origin |
 | 7 QA | `docs/07-...` | Plan only, plus the checks already run |

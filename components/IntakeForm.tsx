@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { DISCLAIMER } from "../lib/data";
+import { DISCLAIMER } from "../lib/constants";
 
 const MATTER_TYPES = [
   "Bankruptcy",

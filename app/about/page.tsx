@@ -4,7 +4,7 @@ import { Breadcrumbs } from "../../components/Breadcrumbs";
 import { EmptyState } from "../../components/EmptyState";
 import { CtaBand } from "../../components/CtaBand";
 import { Reveal } from "../../components/Reveal";
-import { INDUSTRIES } from "../../lib/data";
+import { getIndustries } from "../../lib/data";
 
 export const metadata: Metadata = {
   title: "About the firm",
@@ -17,7 +17,8 @@ const VALUES: [string, string][] = [
   ["Professional", "Expert knowledge applied with precision, and communicated on time."],
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const INDUSTRIES = await getIndustries();
   return (
     <>
       <StatusBar note="Phase 1 deliverable" />

@@ -10,8 +10,19 @@ generator functions mapped one-to-one onto the components below.
 - `app/` — Next.js 14 App Router, TypeScript. Routes match the table in §1 below; the 23
   lawyer, 12 practice, and 10 award pages are dynamic segments with `generateStaticParams`,
   not hand-written files.
-- `lib/data.ts` — the single place that reads `data/*.json`. Swapping this for CMS queries
-  in Phase 4 should not require touching a page or component.
+- `lib/data.ts` — the single place the app reads data from. **Now queries Postgres directly**
+  (`lib/db.ts`, a pooled `pg` client) for lawyers, practices, awards, industries and article
+  categories; `firm.json` remains the source only for firm-wide settings, because
+  `db/schema.sql` has no table for those yet (see `docs/04-cms-backend.md` §0). Swapping this
+  for a CMS's query layer later still shouldn't require touching a page or component — the
+  exported shapes didn't change, only where they come from.
+- `lib/constants.ts` — pure constants/helpers (`NAV`, `DISCLAIMER`, `SITE_READY`,
+  `initials`, `isLeadershipTier`) with zero dependency on `lib/db.ts`. Client components
+  (`Header`, `MobileDrawer`, `IntakeForm`) **must** import from here, not `lib/data.ts`:
+  Next.js bundles a client component's whole import graph for the browser, and `pg` needs
+  Node core modules (`fs`, `net`, `tls`, `dns`) that don't exist there — importing
+  `lib/data.ts` from a client component fails the webpack build outright, not silently.
+  `lib/data.ts` re-exports the same names for server-side convenience.
 - `components/` — `Header`, `MobileDrawer`, `Footer`, `Breadcrumbs`, `EmptyState`,
   `CtaBand`, `StatusBar`, `PersonCard`, `PracticeCard`, `AwardRow`, `Reveal`, `FilterChips`,
   `IntakeForm` — this is the component list `build.py`'s functions predicted.

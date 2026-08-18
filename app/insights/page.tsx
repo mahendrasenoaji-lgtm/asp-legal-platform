@@ -4,14 +4,15 @@ import { Breadcrumbs } from "../../components/Breadcrumbs";
 import { EmptyState } from "../../components/EmptyState";
 import { CtaBand } from "../../components/CtaBand";
 import { FilterChips } from "../../components/FilterChips";
-import { CATEGORIES } from "../../lib/data";
+import { getCategories } from "../../lib/data";
 
 export const metadata: Metadata = {
   title: "Insights",
   description: "Legal updates, case analysis and publications from ASP.",
 };
 
-export default function InsightsPage() {
+export default async function InsightsPage() {
+  const CATEGORIES = await getCategories();
   return (
     <>
       <StatusBar note="Empty by design — see docs/editorial-calendar.md" />

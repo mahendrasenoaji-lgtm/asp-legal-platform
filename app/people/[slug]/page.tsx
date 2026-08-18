@@ -4,14 +4,15 @@ import { StatusBar } from "../../../components/StatusBar";
 import { Breadcrumbs } from "../../../components/Breadcrumbs";
 import { EmptyState } from "../../../components/EmptyState";
 import { CtaBand } from "../../../components/CtaBand";
-import { BIO_SUMMARY, FIRM, LAWYERS, getLawyer, initials } from "../../../lib/data";
+import { FIRM, getLawyer, getLawyers, initials } from "../../../lib/data";
 
-export function generateStaticParams() {
-  return LAWYERS.map((l) => ({ slug: l.slug }));
+export async function generateStaticParams() {
+  const lawyers = await getLawyers();
+  return lawyers.map((l) => ({ slug: l.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
-  const lawyer = getLawyer(params.slug);
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const lawyer = await getLawyer(params.slug);
   if (!lawyer) return {};
   return {
     title: lawyer.name,
@@ -19,11 +20,11 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   };
 }
 
-export default function LawyerPage({ params }: { params: { slug: string } }) {
-  const lawyer = getLawyer(params.slug);
+export default async function LawyerPage({ params }: { params: { slug: string } }) {
+  const lawyer = await getLawyer(params.slug);
   if (!lawyer) notFound();
 
-  const bio = BIO_SUMMARY[lawyer.slug];
+  const bio = lawyer.bio_full;
 
   return (
     <>
@@ -77,14 +78,14 @@ export default function LawyerPage({ params }: { params: { slug: string } }) {
                 <div>
                   <dt>Education</dt>
                   <dd className="muted">
-                    {lawyer.slug === "herlin-susanto"
-                      ? "Universitas Gadjah Mada; Universitas Sriwijaya (LL.M.)"
-                      : "Awaiting ASP"}
+                    {lawyer.education.length > 0 ? lawyer.education.join("; ") : "Awaiting ASP"}
                   </dd>
                 </div>
                 <div>
                   <dt>Languages</dt>
-                  <dd className="muted">Awaiting ASP</dd>
+                  <dd className="muted">
+                    {lawyer.languages.length > 0 ? lawyer.languages.join("; ") : "Awaiting ASP"}
+                  </dd>
                 </div>
                 <div>
                   <dt>Contact</dt>

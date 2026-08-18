@@ -3,7 +3,7 @@ import { StatusBar } from "../../components/StatusBar";
 import { Breadcrumbs } from "../../components/Breadcrumbs";
 import { CtaBand } from "../../components/CtaBand";
 import { PracticeCard } from "../../components/PracticeCard";
-import { PRACTICES } from "../../lib/data";
+import { getPractices } from "../../lib/data";
 import type { Practice } from "../../lib/types";
 
 export const metadata: Metadata = {
@@ -17,7 +17,8 @@ const GROUPS: [Practice["tier"], string][] = [
   ["corporate", "Corporate & regulatory"],
 ];
 
-export default function PracticesPage() {
+export default async function PracticesPage() {
+  const PRACTICES = await getPractices();
   return (
     <>
       <StatusBar note="Overviews pending for all 12 practices" />

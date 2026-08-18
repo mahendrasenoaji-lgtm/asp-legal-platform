@@ -138,10 +138,23 @@ GET  /admin/*             authenticated, MFA, RBAC
 
 ## 6. Not yet done
 
-- CMS itself: Payload is recommended (§1) but not installed or wired to this schema.
-- `lib/data.ts` in the Next.js app (Phase 3) still reads `data/*.json` directly, not this
-  database. Pointing it at Postgres instead is the actual CMS-swap work, and is the reason
-  `lib/data.ts` exists as a single seam.
+- **Done since the above was written:** `lib/data.ts` in the Next.js app (Phase 3) now
+  queries this database directly (`lib/db.ts`, pooled `pg`, `DATABASE_URL` from
+  `.env.local`) instead of reading `data/*.json`. That was the actual CMS-swap work this
+  section used to flag as outstanding. `firm.json` is still the source for firm-wide
+  settings (name, founders, office, claimed metrics) because the schema has no table for
+  those — add one (`firm_settings` or similar) if that's still a gap when this is picked
+  back up.
+- **Practices are not filtered by `is_published`** in `getPractices()` — every practice
+  renders its structural page with an empty-state overview regardless, matching the
+  prototype's "always show the page, never invent the content" pattern. `is_published`
+  still gates the *publish workflow* via `practice_lead_guard`; it just isn't wired to
+  "does this route exist" yet. Revisit once there's an admin UI actually setting it.
+- **`industries` and `article_categories` have no `sort_order` column** in the schema, so
+  the curated order `data/*.json` shipped with doesn't survive seeding — `lib/data.ts`
+  orders both alphabetically instead. Add the column if the original order matters.
+- CMS itself: Payload is recommended (§1) but not installed — there is no editor UI, so
+  every row currently in the database got there via `db/seed.py`, not a human filling a form.
 - API surface (§5): none of `/api/intake`, `/api/search`, `/api/revalidate`, `/admin/*` exist.
 - This was run against a local scratch database (`asp_legal_dev`), not the staging/production
   infrastructure Phase 8 will actually deploy to — running it there again, with real

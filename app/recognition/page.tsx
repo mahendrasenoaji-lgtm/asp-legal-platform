@@ -3,14 +3,15 @@ import { StatusBar } from "../../components/StatusBar";
 import { Breadcrumbs } from "../../components/Breadcrumbs";
 import { CtaBand } from "../../components/CtaBand";
 import { AwardRow } from "../../components/AwardRow";
-import { AWARDS } from "../../lib/data";
+import { getAwards } from "../../lib/data";
 
 export const metadata: Metadata = {
   title: "Recognition",
   description: "Awards and rankings received by ASP.",
 };
 
-export default function RecognitionPage() {
+export default async function RecognitionPage() {
+  const AWARDS = await getAwards();
   return (
     <>
       <StatusBar note="Every entry links to the awarding organisation's own listing" />

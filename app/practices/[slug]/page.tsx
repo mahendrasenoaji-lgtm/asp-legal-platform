@@ -5,22 +5,24 @@ import { StatusBar } from "../../../components/StatusBar";
 import { Breadcrumbs } from "../../../components/Breadcrumbs";
 import { EmptyState } from "../../../components/EmptyState";
 import { CtaBand } from "../../../components/CtaBand";
-import { PRACTICES, getPractice } from "../../../lib/data";
+import { getPractice, getPractices } from "../../../lib/data";
 
-export function generateStaticParams() {
-  return PRACTICES.map((p) => ({ slug: p.slug }));
+export async function generateStaticParams() {
+  const practices = await getPractices();
+  return practices.map((p) => ({ slug: p.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
-  const practice = getPractice(params.slug);
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const practice = await getPractice(params.slug);
   if (!practice) return {};
   return { title: practice.name_en, description: `${practice.name_en} practice at ASP.` };
 }
 
-export default function PracticePage({ params }: { params: { slug: string } }) {
-  const practice = getPractice(params.slug);
+export default async function PracticePage({ params }: { params: { slug: string } }) {
+  const practice = await getPractice(params.slug);
   if (!practice) notFound();
 
+  const PRACTICES = await getPractices();
   const related = PRACTICES.filter((x) => x.tier === practice.tier && x.slug !== practice.slug).slice(0, 3);
 
   return (

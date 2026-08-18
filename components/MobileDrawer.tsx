@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { NAV } from "../lib/data";
+import { NAV } from "../lib/constants";
 
 // Ports the drawer behaviour from prototype/assets/app.js: focus capture on
 // open, focus return on close, Escape to close, body scroll lock.

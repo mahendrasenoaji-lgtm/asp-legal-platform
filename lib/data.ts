@@ -1,76 +1,124 @@
-// Central data access. Every page reads through here, never `data/*.json`
-// directly — so that swapping this module for Phase 4 CMS queries (the
-// shapes are already the shapes, per CLAUDE.md) touches one file, not fifty.
+// Central data access. Every page reads through here, never the database or
+// data/*.json directly — this is the seam docs/04-cms-backend.md §6 asked
+// for. As of this pass it reads the seeded Postgres database (db/schema.sql,
+// db/seed.py) for everything that has a table; firm.json stays the source
+// for firm-wide settings because the schema has no table for those yet (no
+// `firm`/`organization` table exists in db/schema.sql — a real gap, not an
+// oversight here; flagged rather than worked around silently).
+//
+// `cache()` memoises each query per request/build so the ~12-23 rows these
+// tables hold aren't re-fetched once per static page during `next build`.
 
+import { cache } from "react";
 import firmData from "../data/firm.json";
-import lawyersData from "../data/lawyers.json";
-import practicesData from "../data/practice-areas.json";
-import awardsData from "../data/awards.json";
-import industriesData from "../data/industries.json";
-import categoriesData from "../data/insight-categories.json";
-
+import { pool } from "./db";
 import type { Award, Firm, Industry, InsightCategory, Lawyer, Practice } from "./types";
 
+// Re-exported for server-side callers that want everything from one import;
+// client components must import these from lib/constants directly instead
+// (see the comment at the top of that file for why).
+export { DISCLAIMER, NAV, SITE_READY, initials, isLeadershipTier } from "./constants";
+
 export const FIRM = firmData as Firm;
-export const LAWYERS = lawyersData.lawyers as Lawyer[];
-export const PRACTICES = practicesData.practice_areas as Practice[];
-export const AWARDS = awardsData.awards as Award[];
-export const INDUSTRIES = industriesData.industries as Industry[];
-export const CATEGORIES = categoriesData.insight_categories as InsightCategory[];
 
-export function getLawyer(slug: string): Lawyer | undefined {
-  return LAWYERS.find((l) => l.slug === slug);
-}
+export const getLawyers = cache(async (): Promise<Lawyer[]> => {
+  const { rows } = await pool.query(`
+    SELECT
+      l.slug, l.name, l.honorifics, l.tier::text AS tier, l.position_label AS position,
+      l.is_curator, l.email, t.bio_full,
+      coalesce(array_agg(lc.value) FILTER (WHERE lc.kind = 'education'), '{}')  AS education,
+      coalesce(array_agg(lc.value) FILTER (WHERE lc.kind = 'admission'),  '{}') AS admissions,
+      coalesce(array_agg(lc.value) FILTER (WHERE lc.kind = 'membership'), '{}') AS memberships,
+      coalesce(array_agg(lc.value) FILTER (WHERE lc.kind = 'language'),  '{}') AS languages
+    FROM lawyers l
+    LEFT JOIN lawyer_translations t  ON t.lawyer_id = l.id AND t.locale = 'en'
+    LEFT JOIN lawyer_credentials lc  ON lc.lawyer_id = l.id
+    WHERE l.is_published
+    GROUP BY l.id, t.bio_full
+    ORDER BY l.sort_order
+  `);
+  return rows.map((r) => ({
+    slug: r.slug,
+    name: r.name,
+    honorifics: r.honorifics,
+    tier: r.tier,
+    position: r.position,
+    is_curator: r.is_curator,
+    photo: null,
+    bio_short: null,
+    bio_full: r.bio_full,
+    practice_areas: [],
+    industries: [],
+    education: r.education,
+    admissions: r.admissions,
+    memberships: r.memberships,
+    languages: r.languages,
+    email: r.email,
+    linkedin: null,
+  }));
+});
 
-export function getPractice(slug: string): Practice | undefined {
-  return PRACTICES.find((p) => p.slug === slug);
-}
+export const getLawyer = async (slug: string): Promise<Lawyer | undefined> =>
+  (await getLawyers()).find((l) => l.slug === slug);
 
-export function getAward(slug: string): Award | undefined {
-  return AWARDS.find((a) => a.slug === slug);
-}
+// practice_areas.is_published gates the *publish workflow* (a practice
+// cannot be marked published without a lead lawyer — practice_lead_guard in
+// db/schema.sql). It does not gate whether the structural page exists on
+// this site: every practice renders with an empty-state overview until ASP
+// supplies one (content request 3), same as the static prototype. Filtering
+// this list to is_published would currently make all 12 practice pages
+// disappear, since data/lawyers.json has no lawyer -> practice links yet.
+// Revisit this once there's an admin UI actually using is_published.
+export const getPractices = cache(async (): Promise<Practice[]> => {
+  const { rows } = await pool.query(`
+    SELECT p.slug, p.tier::text AS tier, p.legacy_group,
+           en.name AS name_en, id_.name AS name_id
+    FROM practice_areas p
+    LEFT JOIN practice_translations en  ON en.practice_id = p.id AND en.locale = 'en'
+    LEFT JOIN practice_translations id_ ON id_.practice_id = p.id AND id_.locale = 'id'
+    ORDER BY p.sort_order
+  `);
+  return rows.map((r) => ({
+    slug: r.slug,
+    name_en: r.name_en,
+    name_id: r.name_id,
+    tier: r.tier,
+    legacy_group: r.legacy_group,
+    overview: null,
+  }));
+});
 
-export function initials(name: string): string {
-  const parts = name.split(" ").filter((p) => /^[A-Za-z]/.test(p));
-  const first = parts[0]?.[0] ?? "";
-  const last = parts.length > 1 ? parts[parts.length - 1][0] : "";
-  return (first + last).toUpperCase();
-}
+export const getPractice = async (slug: string): Promise<Practice | undefined> =>
+  (await getPractices()).find((p) => p.slug === slug);
 
-// Author availability for the editorial calendar (docs/editorial-calendar.md):
-// only the two founding partners have publishable expertise today.
-export const BIO_SUMMARY: Record<string, string> = {
-  "muhamad-arifudin":
-    "Lawyer and court-appointed bankruptcy receiver, and managing partner of the firm. " +
-    "More than fifteen years of practice in bankruptcy and debt restructuring, across energy, " +
-    "oil and gas, aviation, plantations and palm oil processing, investment companies, cooperatives, " +
-    "property, warehousing, tobacco, manufacturing, textiles, herbal medicine production, shipping, " +
-    "mobile dealerships and individual debtor matters. Has acted for state-owned enterprises both as " +
-    "court-appointed receiver and as counsel.",
-  "herlin-susanto":
-    "Co-founder and partner. Law degree from Universitas Gadjah Mada and a master's in law from " +
-    "Universitas Sriwijaya. More than fifteen years in bankruptcy, PKPU, litigation and arbitration, " +
-    "representing national companies in business disputes and corporate restructuring. Serves as " +
-    "treasurer of the honorary board of the Indonesian Association of Curators and Administrators (AKPI) " +
-    "for the 2025–2028 term.",
-};
+export const getAwards = cache(async (): Promise<Award[]> => {
+  const { rows } = await pool.query(`
+    SELECT slug, title, year, organization, source_url
+    FROM awards
+    WHERE is_published
+    ORDER BY year DESC, title
+  `);
+  return rows as Award[];
+});
 
-export const DISCLAIMER =
-  "Submission of information through this website does not create an attorney-client " +
-  "relationship. Do not submit confidential or privileged information until such a " +
-  "relationship has been established.";
+export const getAward = async (slug: string): Promise<Award | undefined> =>
+  (await getAwards()).find((a) => a.slug === slug);
 
-export const NAV: [string, string][] = [
-  ["About", "/about"],
-  ["People", "/people"],
-  ["Practices", "/practices"],
-  ["Insights", "/insights"],
-  ["Cases", "/cases"],
-  ["Recognition", "/recognition"],
-  ["Careers", "/careers"],
-];
+// industries and article_categories have no sort_order column in the schema
+// (db/schema.sql) — the curated order data/*.json shipped with is lost once
+// seeded. Ordering alphabetically here is a real, visible consequence of
+// that gap, not a stylistic choice; add sort_order to both tables if the
+// original order matters before this goes further than a local database.
+export const getIndustries = cache(async (): Promise<Industry[]> => {
+  const { rows } = await pool.query(
+    `SELECT slug, name_en, name_id FROM industries ORDER BY name_en`,
+  );
+  return rows as Industry[];
+});
 
-// Flip when Phases 6 and 7 actually close (see CLAUDE.md, docs/07-qa.md §8).
-// Until then every page stays noindex and carries the status bar, same rule
-// the static prototype enforced.
-export const SITE_READY = false;
+export const getCategories = cache(async (): Promise<InsightCategory[]> => {
+  const { rows } = await pool.query(
+    `SELECT slug, name_en, name_id FROM article_categories ORDER BY name_en`,
+  );
+  return rows as InsightCategory[];
+});
