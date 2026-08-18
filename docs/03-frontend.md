@@ -1,9 +1,37 @@
 # PHASE 3 — Frontend
 
-**Status:** Working prototype of 57 pages. Open `prototype/index.html` in a browser.
-**Nature:** Static HTML/CSS/JS generated from the verified data files. This is not the
-production Next.js application; it is the thing that proves the architecture and the design
-system work together before anyone writes a React component.
+**Status:** Next.js port built and building clean (`npm run build` — 59 static routes). The
+static HTML prototype (57 pages, `prototype/`) is kept as a reference; it is what proved the
+architecture and the design system worked together before any React was written, and its
+generator functions mapped one-to-one onto the components below.
+
+## 0. What changed from the prototype
+
+- `app/` — Next.js 14 App Router, TypeScript. Routes match the table in §1 below; the 23
+  lawyer, 12 practice, and 10 award pages are dynamic segments with `generateStaticParams`,
+  not hand-written files.
+- `lib/data.ts` — the single place that reads `data/*.json`. Swapping this for CMS queries
+  in Phase 4 should not require touching a page or component.
+- `components/` — `Header`, `MobileDrawer`, `Footer`, `Breadcrumbs`, `EmptyState`,
+  `CtaBand`, `StatusBar`, `PersonCard`, `PracticeCard`, `AwardRow`, `Reveal`, `FilterChips`,
+  `IntakeForm` — this is the component list `build.py`'s functions predicted.
+- **Styling call:** `app/tokens.css` and `app/main.css` are the prototype's files, copied
+  unchanged. Tailwind is installed and its tokens are mapped in `tailwind.config.ts` (per §4
+  below) but styling itself was not rewritten as utilities — that CSS is already
+  token-driven and already measured for contrast; redoing it as Tailwind classes would spend
+  time on a rewrite, not on architecture, and risks a visual regression the prototype had
+  already avoided. `corePlugins.preflight` is off so Tailwind doesn't fight `main.css`'s own
+  reset.
+- **Bilingual routing:** not scaffolded. CLAUDE.md calls for `/id/*`, but there is no
+  Indonesian copy to put there yet (see the editorial calendar's own rule — half-hearted
+  translation ruins both). Building an empty `/id` tree ahead of real content would be
+  scaffolding with nothing behind it. Do this once Indonesian copy exists, not before.
+- **Fonts:** still loaded from `fonts.googleapis.com`, same as the prototype. Self-hosting
+  with a nonced nonce is a Phase 6 CSP concern (`docs/06-security.md` §1) — do it there.
+- **What did not change:** no CMS, no server action on the intake form (still client-side
+  validation only, same boundary the prototype drew), no database. Those stay Phase 4 and 6.
+
+## Original prototype notes
 
 ---
 
@@ -49,17 +77,18 @@ Three reasons, all of which carry into the Next.js port:
 - **No chatbot.** Per the brief, the AI assistant is data preparation only.
 - **`noindex` on every prototype page.** These files must never be crawled.
 
-## 4. Porting to Next.js
+## 4. Porting to Next.js — done, with one deferral
 
-Order of work in the real application:
-
-1. `app/[locale]/layout.tsx` — header, drawer, footer, skip link, font loading (self-hosted).
-2. Copy `tokens.css` unchanged; map the token names into `tailwind.config.ts` so utilities and
-   custom properties agree instead of competing.
-3. Routes in the order of the table above; practice and lawyer pages as dynamic segments with
-   `generateStaticParams`.
-4. Replace `build.py` data loading with CMS queries — the shapes are already the shapes.
-5. Intake form: server action, Zod validation, rate limit, virus scan, then persist.
+1. ~~`app/[locale]/layout.tsx`~~ → `app/layout.tsx` — header, drawer, footer, skip link done.
+   `[locale]` deferred: see §0, bilingual routing.
+2. Done — `tokens.css` copied unchanged; tokens mapped into `tailwind.config.ts`.
+3. Done — routes in the order of the table above; practice, lawyer and award pages are
+   dynamic segments with `generateStaticParams`.
+4. Not yet — `lib/data.ts` reads `data/*.json` directly today. It is the one file Phase 4
+   needs to change; the shapes it exports are already the CMS shapes.
+5. Not yet — intake form is still client-side validation only, no server action. Phase 6
+   work (`docs/06-security.md` §2): server action, Zod validation, rate limit, virus scan,
+   then persist.
 
 Rendering strategy: static generation for everything content-driven, revalidated on CMS
-webhook. Only search and intake need a server at request time.
+webhook once Phase 4 lands. Only search and intake will need a server at request time.

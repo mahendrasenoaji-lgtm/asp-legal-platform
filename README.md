@@ -11,8 +11,8 @@ posts and categories for fashion and music on its news page).
 | Phase | Stage | State |
 |---|---|---|
 | 1 | Information Architecture | Complete — awaiting client sign-off |
-| 2 | UI Design System | Built and testable (`prototype/styleguide.html`) |
-| 3 | Frontend | Prototype: 57 static pages generated from `data/` |
+| 2 | UI Design System | Built and testable (`prototype/styleguide.html`, `/styleguide`) |
+| 3 | Frontend | **Next.js port live** — 59 routes (`app/`), static prototype kept for reference |
 | 4 | CMS / Backend | Schema written (`db/schema.sql`); not migrated |
 | 5 | SEO | Specified; redirect config generated |
 | 6 | Security | Configured (`config/security-headers.js`); not tested |
@@ -23,6 +23,22 @@ posts and categories for fashion and music on its news page).
 executed. Four content decisions are still open — see `docs/content-requests.md`.
 
 ## Quick start
+
+**Next.js app (Phase 3):**
+
+```bash
+npm install
+npm run dev      # http://localhost:3000
+npm run build    # static generation check — 59 routes
+```
+
+TypeScript + Tailwind, but component styling is `app/tokens.css` and `app/main.css`
+carried over unchanged from the prototype (already measured for contrast) rather than
+rewritten as utilities — see `tailwind.config.ts` for why. Data is read through
+`lib/data.ts`, which is the one file Phase 4's CMS swap needs to touch. Bilingual `/id/`
+routes are deliberately not scaffolded yet — there is no Indonesian copy to put in them.
+
+**Static prototype (Phase 2/3, kept for reference):**
 
 ```bash
 python3 prototype/build.py       # regenerate the 57-page prototype
@@ -37,6 +53,9 @@ No dependencies. The prototype is plain HTML, CSS and vanilla JS.
 
 ```
 CLAUDE.md                    project context for Claude Code
+app/                          Next.js App Router — Phase 3, real build
+components/                   shared React components for app/
+lib/                          typed data access (data.ts) + contrast.ts
 docs/
   01-information-architecture.md   audit, sitemap, content model, redirect map
   02-design-system.md              tokens, type, measured contrast, components

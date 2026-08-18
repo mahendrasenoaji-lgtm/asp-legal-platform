@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+
+/* Design tokens (Phase 2, copied unchanged) and component styles (Phase 2/3,
+   ported unchanged from the static prototype) — see tailwind.config.ts for
+   why preflight is off and how these tokens are mirrored into Tailwind. */
+@import "./tokens.css";
+@import "./main.css";
+
+@tailwind utilities;

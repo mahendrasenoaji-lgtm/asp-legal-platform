@@ -23,15 +23,19 @@ difference matters:
 | Phase | Deliverable | Actually verified? |
 |---|---|---|
 | 1 Information Architecture | `docs/01-...` | Yes — built from a crawl of the live site |
-| 2 UI Design System | `prototype/assets/tokens.css`, `styleguide.html` | Contrast computed at build time; no browser screenshot |
-| 3 Frontend | `prototype/` — 57 pages from `build.py` | Link check passes; static prototype, not the Next.js app |
+| 2 UI Design System | `app/tokens.css`, `/styleguide` | Contrast computed at build time; screenshotted in Chrome, matches prototype pixel-for-pixel |
+| 3 Frontend | `app/` — Next.js 14 App Router, 59 routes | `npm run build` passes; dynamic routes for lawyers/practices/awards verified in-browser (nav, breadcrumbs, drawer, intake-form validation all checked) |
 | 4 CMS / Backend | `db/schema.sql` | Written, never migrated — no database in that environment |
 | 5 SEO | `docs/05-...`, `config/redirects.js` | Map incomplete by design; needs a full crawl |
 | 6 Security | `config/security-headers.js` | Configured, never tested against an origin |
 | 7 QA | `docs/07-...` | Plan only, plus the checks already run |
 | 8 Deployment | `docs/08-...` | Runbook only |
 
-The honest next step is the Next.js port (see `docs/03-frontend.md` §4), not more documents.
+Phase 3 is now the Next.js app in `app/`, not the static prototype (kept in `prototype/` for
+reference — see `docs/03-frontend.md` §0 for what changed and what was deliberately
+deferred: bilingual `/id/` routes, CMS wiring, and the intake form's server side). The honest
+next step is Phase 4 (wire `lib/data.ts` to a real CMS/DB) or closing the four open decisions
+below so the remaining empty states can be filled — not more documents.
 Read `docs/01-information-architecture.md` and `docs/02-design-system.md` before writing
 components — the token system and the empty-state pattern are load-bearing.
 
