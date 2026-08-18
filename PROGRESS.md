@@ -17,7 +17,14 @@ Local path: `~/Documents/asp-law/files/asp-legal-platform/asp-legal-platform`
 | 5 SEO | **Done to the extent possible** — live-crawled `asplawyer.co.id` (sitemap, links, manual probing), found the legacy site runs TranslatePress (every URL incl. junk mirrored under `/id/`) and a missing author-archive redirect, fixed both. `data/redirects.csv` now 31 rows. Search Console diff still blocked on ASP's own account access |
 | 6 Security | **Headers wired in + verified with a real browser** (`middleware.ts`) — found and fixed a CSP bug that silently broke all client hydration (nonce vs. static generation). Pentest, uploads, admin/MFA, WAF, backups still need real infra |
 | 7 QA | **Real Lighthouse runs** against `npm run start`: Accessibility 100, Performance 91, Best Practices 92. Found + fixed 2 real a11y bugs. Cross-browser, screen readers, real devices still pending |
-| 8 Deployment | Not started — runbook only, nothing deployed |
+| 8 Deployment | **Paused mid-setup** — Vercel CLI is authenticated (`vercel whoami` → `mahendrasenoaji-6835`), but deploying needs a cloud Postgres reachable at build time first (`lib/data.ts` queries the DB during static generation; Vercel's build environment can't reach the local `asp_legal_dev` on this Mac). User was asked to choose: (a) provision Vercel Postgres/Neon via the marketplace on their existing account, (b) supply an existing cloud `DATABASE_URL`, or (c) temporarily revert to reading `data/*.json` at build time to ship without a DB. No answer yet — paused, not decided against |
+
+## Resume point (paused 18 Aug 2026, mid-deployment)
+
+Next message in a new session should be: pick up the Vercel deployment question above —
+which cloud Postgres to use — then run through `vercel` CLI (already authenticated). A
+proposal document comparing legacy vs rebuild also exists: `docs/proposal/rebuild-proposal.html`,
+already pushed, and published as a private Claude Artifact for review before sharing with ASP.
 
 ## What to do next, in order
 
