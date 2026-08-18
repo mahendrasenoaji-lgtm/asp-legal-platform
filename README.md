@@ -13,7 +13,7 @@ posts and categories for fashion and music on its news page).
 | 1 | Information Architecture | Complete — awaiting client sign-off |
 | 2 | UI Design System | Built and testable (`prototype/styleguide.html`, `/styleguide`) |
 | 3 | Frontend | **Next.js port live** — 59 routes (`app/`), static prototype kept for reference |
-| 4 | CMS / Backend | Schema written (`db/schema.sql`); not migrated |
+| 4 | CMS / Backend | **Migrated & seeded** — schema runs clean on Postgres 16, all 4 integrity guards verified to actually reject bad rows (see `docs/04-cms-backend.md` §0). CMS editor itself still unbuilt |
 | 5 | SEO | Specified; redirect config generated |
 | 6 | Security | Configured (`config/security-headers.js`); not tested |
 | 7 | QA | Plan written; link check passing, rest pending infrastructure |
@@ -37,6 +37,18 @@ carried over unchanged from the prototype (already measured for contrast) rather
 rewritten as utilities — see `tailwind.config.ts` for why. Data is read through
 `lib/data.ts`, which is the one file Phase 4's CMS swap needs to touch. Bilingual `/id/`
 routes are deliberately not scaffolded yet — there is no Indonesian copy to put in them.
+
+**Database (Phase 4):**
+
+```bash
+createdb asp_legal_dev
+psql -d asp_legal_dev -v ON_ERROR_STOP=1 -f db/schema.sql
+python3 db/seed.py > db/seed.sql && psql -d asp_legal_dev -v ON_ERROR_STOP=1 -f db/seed.sql
+psql -d asp_legal_dev -f db/verify_guards.sql   # proves the 4 integrity guards actually bite
+```
+
+Needs PostgreSQL 15+ locally (`brew install postgresql@16`). The Next.js app does not read
+from this database yet — see `lib/data.ts` and `docs/04-cms-backend.md` §6.
 
 **Static prototype (Phase 2/3, kept for reference):**
 

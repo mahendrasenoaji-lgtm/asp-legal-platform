@@ -25,7 +25,7 @@ difference matters:
 | 1 Information Architecture | `docs/01-...` | Yes — built from a crawl of the live site |
 | 2 UI Design System | `app/tokens.css`, `/styleguide` | Contrast computed at build time; screenshotted in Chrome, matches prototype pixel-for-pixel |
 | 3 Frontend | `app/` — Next.js 14 App Router, 59 routes | `npm run build` passes; dynamic routes for lawyers/practices/awards verified in-browser (nav, breadcrumbs, drawer, intake-form validation all checked) |
-| 4 CMS / Backend | `db/schema.sql` | Written, never migrated — no database in that environment |
+| 4 CMS / Backend | `db/schema.sql`, `db/seed.py`, `db/verify_guards.sql` | Migrated + seeded on Postgres 16; found and fixed 2 real bugs (a `STABLE`-function index that didn't build, and a search view that hid 21 of 23 published lawyers); all 4 integrity guards proven to reject bad rows. CMS editor and app wiring (`lib/data.ts`) still not done |
 | 5 SEO | `docs/05-...`, `config/redirects.js` | Map incomplete by design; needs a full crawl |
 | 6 Security | `config/security-headers.js` | Configured, never tested against an origin |
 | 7 QA | `docs/07-...` | Plan only, plus the checks already run |

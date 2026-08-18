@@ -1,7 +1,53 @@
 # PHASE 4 — CMS & Backend
 
-**Status:** Schema written and reviewable (`db/schema.sql`, 394 lines). Not yet migrated
-against a live database.
+**Status:** Migrated and seeded against a real PostgreSQL 16 instance. All four integrity
+guards verified to actually reject bad rows, not just documented to. CMS itself (Payload,
+§1) is still unselected/unbuilt — this phase closed the database, not the editor.
+
+## 0. What actually got tested (not just written)
+
+```bash
+psql -d asp_legal_dev -v ON_ERROR_STOP=1 -f db/schema.sql   # migrate
+python3 db/seed.py > db/seed.sql                            # regenerate from data/*.json
+psql -d asp_legal_dev -v ON_ERROR_STOP=1 -f db/seed.sql     # seed
+psql -d asp_legal_dev -f db/verify_guards.sql               # prove the guards bite
+```
+
+Running the real migration surfaced two bugs the schema-as-written hid:
+
+1. **`search_index_fts` failed to build at all.** `unaccent()` is `STABLE`, not
+   `IMMUTABLE`, and Postgres refuses `STABLE` functions in an index expression. Fixed with
+   the standard `immutable_unaccent()` wrapper (`db/schema.sql`, just above the index).
+2. **21 of 23 lawyers were invisible to search — not just bio-less, unfindable by name.**
+   The `search_index` view inner-joined `lawyer_translations`; a lawyer with no bio row
+   (content request 1) produced zero search rows instead of one row with an empty body.
+   Fixed with a `LEFT JOIN` and a fixed `'en'` locale, so a published name is always
+   searchable regardless of whether the bio has arrived yet.
+
+Seeding `data/*.json` also surfaced a data/schema mismatch: `data/redirects.csv` carries 5
+rows that don't fit the `redirects` table's `CHECK (status IN (301, 302, 410))` — one
+`status=200` row (`/careers/` unchanged, not a redirect at all) and four `status=BLOCK` rows
+(legacy WordPress paths — `/wp-admin/*`, `/wp-login.php`, `/xmlrpc.php`, `/wp-json/*`). Those
+four are a WAF/robots rule, not an HTTP redirect; they belong in
+`config/security-headers.js` + Cloudflare (Phase 6), not this table. `db/seed.py` skips all
+5 on purpose and says so in a comment, rather than failing or silently coercing them.
+
+Guard verification results (`db/verify_guards.sql`, each check in a rolled-back savepoint):
+
+| Guard | Result |
+|---|---|
+| Practice publish without a lead lawyer | ❌ rejected — `assert_practice_has_lead()` fired |
+| Article publish without an author | ❌ rejected — `assert_article_has_author()` fired |
+| Public matter without source + clearance | ❌ rejected — `public_case_needs_provenance` fired |
+| Award without a source URL | ❌ rejected — `NOT NULL` on `source_url` fired |
+| Public matter *with* source + clearance | ✅ inserted, as it should |
+
+Seeded row counts: 23 lawyers (all published — names/tiers are verified; 21 render an
+empty-state bio in the app, same as the prototype, rather than being hidden), 2 bios, 3
+credentials, 12 practices (**0 published** — correctly blocked, no practice has a lead lawyer
+in `data/`), 16 industries, 9 article categories, 10 awards, 17 redirects, 0 cases, 0
+articles. The zeros are the point, not a gap: nothing here was invented to make a bigger
+number.
 
 ---
 
@@ -92,6 +138,11 @@ GET  /admin/*             authenticated, MFA, RBAC
 
 ## 6. Not yet done
 
-Migrations have not been run — there is no database in this environment. Before Phase 8:
-apply against a scratch instance, load `data/*.json` as the seed, and confirm the four
-integrity guards actually reject bad rows.
+- CMS itself: Payload is recommended (§1) but not installed or wired to this schema.
+- `lib/data.ts` in the Next.js app (Phase 3) still reads `data/*.json` directly, not this
+  database. Pointing it at Postgres instead is the actual CMS-swap work, and is the reason
+  `lib/data.ts` exists as a single seam.
+- API surface (§5): none of `/api/intake`, `/api/search`, `/api/revalidate`, `/admin/*` exist.
+- This was run against a local scratch database (`asp_legal_dev`), not the staging/production
+  infrastructure Phase 8 will actually deploy to — running it there again, with real
+  credentials and backups configured, is still required before launch.

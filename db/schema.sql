@@ -373,10 +373,17 @@ CREATE INDEX audit_entity_idx ON audit_logs (entity_type, entity_id, created_at 
 
 -- ---------------------------------------------------------------- search ----
 
+-- lawyer uses a LEFT JOIN and a fixed 'en' locale, not an inner join over
+-- lawyer_translations: a published lawyer with no bio yet (21 of 23 today
+-- — content request 1) must still be findable by name. An inner join here
+-- made those 21 people invisible to the site's own search, not just
+-- bio-less, which is a correctness bug independent of the missing-content
+-- one: the name is known and published, so search should find it.
 CREATE MATERIALIZED VIEW search_index AS
-  SELECT 'lawyer'::text AS kind, l.id, l.slug, t.locale,
+  SELECT 'lawyer'::text AS kind, l.id, l.slug, 'en'::locale AS locale,
          l.name AS title, coalesce(t.bio_short, '') AS body
-    FROM lawyers l JOIN lawyer_translations t ON t.lawyer_id = l.id
+    FROM lawyers l LEFT JOIN lawyer_translations t
+      ON t.lawyer_id = l.id AND t.locale = 'en'
    WHERE l.is_published
   UNION ALL
   SELECT 'practice', p.id, p.slug, t.locale, t.name, coalesce(t.overview, '')
@@ -390,5 +397,14 @@ CREATE MATERIALIZED VIEW search_index AS
   SELECT 'award', w.id, w.slug, 'en'::locale, w.title, coalesce(w.description, '')
     FROM awards w WHERE w.is_published;
 
+-- unaccent() is STABLE, not IMMUTABLE, so Postgres refuses it directly in a
+-- functional index expression ("functions in index expression must be
+-- marked IMMUTABLE"). The standard fix: wrap it as IMMUTABLE. This is safe
+-- here because the unaccent dictionary this app uses is fixed at deploy
+-- time, not data-dependent.
+CREATE OR REPLACE FUNCTION immutable_unaccent(text) RETURNS text AS $$
+  SELECT unaccent('unaccent', $1)
+$$ LANGUAGE sql IMMUTABLE PARALLEL SAFE STRICT;
+
 CREATE INDEX search_index_fts ON search_index
-  USING gin (to_tsvector('simple', unaccent(title || ' ' || body)));
+  USING gin (to_tsvector('simple', immutable_unaccent(title || ' ' || body)));
