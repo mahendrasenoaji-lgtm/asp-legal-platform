@@ -10,6 +10,7 @@ old_path,new_path,status,note
 /id/solutions/,/id/layanan/,301,
 /id/news/,/id/wawasan/,301,
 /id/contact-us/,/id/kontak/,301,
+/id/careers/,/careers/,301,ID mirror of an unchanged EN page; no dedicated /id/ careers page yet
 /en/*,/*,301,EN stays at root
 /hello-world/,,410,WordPress default post
 /be-my-guest/,,410,theme demo post
@@ -17,6 +18,14 @@ old_path,new_path,status,note
 /category/fashion/,,410,dummy taxonomy
 /category/music/,,410,dummy taxonomy
 /category/uncategorized/,,410,dummy taxonomy
+/author/asplawyer/,,410,WordPress default author archive; not in the original nav crawl
+/id/hello-world/,,410,TranslatePress ID mirror of the same WordPress default post
+/id/be-my-guest/,,410,TranslatePress ID mirror of the same theme demo post
+/id/nulla-magna/,,410,TranslatePress ID mirror of the same theme demo post
+/id/category/fashion/,,410,TranslatePress ID mirror of the same dummy taxonomy
+/id/category/music/,,410,TranslatePress ID mirror of the same dummy taxonomy
+/id/category/uncategorized/,,410,TranslatePress ID mirror of the same dummy taxonomy
+/id/author/asplawyer/,,410,TranslatePress ID mirror of the same author archive
 /wp-admin/*,,BLOCK,robots + WAF
 /wp-login.php,,BLOCK,robots + WAF
 /xmlrpc.php,,BLOCK,robots + WAF

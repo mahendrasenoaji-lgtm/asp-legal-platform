@@ -1,7 +1,8 @@
 # PHASE 5 — SEO Architecture
 
-**Status:** Specified. Redirect config generated (`config/redirects.js`), robots written
-(`config/robots.txt`). Structured data templates below.
+**Status:** Redirect map crawled against the live legacy site and completed to the extent a
+crawl can complete it (see §5.1). Robots written (`config/robots.txt`). Structured data
+templates below.
 
 ---
 
@@ -78,21 +79,61 @@ court-appointed receiver, and that is a search nobody else at this level is answ
 
 ## 5. Migration
 
-Baseline map in `data/redirects.csv`, generated into `config/redirects.js`:
-11 redirects, 6 pages to 410, 4 legacy endpoints blocked.
+Map in `data/redirects.csv`, generated into `config/redirects.js`: **12 redirects, 14 pages
+to 410, 4 legacy endpoints blocked.**
 
 The decision worth restating: the three WordPress demo posts and the fashion/music/
 uncategorised archives return **410 Gone**, not a redirect. Redirecting removed junk to the
 homepage is read as a soft 404 and dilutes the target page.
 
-**The map is incomplete and known to be.** The legacy navigation exposes seven pages; a
-WordPress install typically carries attachment pages, tag archives and pagination that the
-menu never shows. Before launch:
+### 5.1 Live crawl — 2026-08-18
 
-1. Crawl the live site (Screaming Frog) and fetch `wp-sitemap.xml`.
-2. Export 16 months of Search Console pages and queries.
-3. Diff both against the map; anything with impressions gets a destination.
-4. Anything with no impressions and no value gets 410, not a redirect.
+No Screaming Frog license in this environment, so the equivalent was done directly:
+`curl` against `robots.txt`, `wp-sitemap.xml` and its four sub-sitemaps, plus link
+extraction from the rendered homepage and manual probing of WordPress paths a sitemap
+typically omits (author archives, pagination, feeds, `/id/*` mirrors). Steps 1, 3 and 4 of
+the original four-step plan are done; step 2 could not be — see the callout below.
+
+**What the sitemap actually contains** (`wp-sitemap.xml` → 4 sub-sitemaps, all fetched):
+
+| Sub-sitemap | URLs |
+|---|---|
+| posts | `/hello-world/`, `/nulla-magna/`, `/be-my-guest/` — the 3 WordPress/theme demo posts |
+| pages | `/`, `/news/`, `/contact-us/`, `/about-us/`, `/our-people/`, `/solutions/`, `/careers/` |
+| categories | `/category/uncategorized/`, `/category/fashion/`, `/category/music/` |
+| users | `/author/asplawyer/` |
+
+That confirms the original map's 6 nav pages and 6 junk URLs were correct and complete —
+but it also found **2 real gaps**, both now fixed in `data/redirects.csv`:
+
+1. **`/author/asplawyer/` was missing entirely.** A WordPress author archive isn't in any
+   nav menu, which is exactly why a sitemap fetch matters more than a nav crawl. Added as
+   410 — it only ever archived the three demo posts.
+2. **The legacy site runs TranslatePress**, confirmed from the `translatepress-id_ID` body
+   class on `/id/`. It mirrors *every* URL — including the junk — under an `/id/` prefix
+   automatically: `/id/hello-world/`, `/id/category/fashion/`, `/id/author/asplawyer/`, etc.
+   all resolve 200 today. The original map only added `/id/*` rows for the 5 real nav pages
+   and missed the `/id/` mirror of every 410 and the `/id/careers/` mirror of the one
+   unchanged page. All 8 added.
+
+**A crawl-trap finding, not a redirect-map gap:** `/news/page/2/` through at least
+`/news/page/999/` all return `200`, not `404` — the legacy theme doesn't bound pagination to
+the actual post count. This is exactly the kind of thing `docs/06-security.md` §5 already
+argues against keeping the WordPress install running any longer than the DNS cutover
+requires; it needs no redirect-map entry because the Next.js app simply has no route there,
+so those inbound paths 404 correctly on the new site without any rule.
+
+**What was checked and needed no action:** `/feed/`, `/comments/feed/`, `/home/feed/`
+(RSS — not indexed as search results, no redirect needed), `/?s=` (WordPress search, same),
+`/wp-json/` (already covered by the existing `BLOCK` rule).
+
+**Step 2 — Search Console — could not be done here.** Exporting 16 months of pages and
+queries needs authenticated access to ASP's Google Search Console property, which this
+environment does not have. This is the same gap as `docs/content-requests.md` item 13
+(Search Console access). Until ASP supplies it, the map above is complete relative to what a
+crawl can see — not relative to what has impressions. A URL with real search traffic that
+the current site doesn't link from anywhere crawlable (an orphan page) would still be
+invisible to this method. Re-run the diff once access exists, before launch, not after.
 
 ## 6. Post-launch
 

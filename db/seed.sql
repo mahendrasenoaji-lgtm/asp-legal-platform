@@ -132,6 +132,7 @@ INSERT INTO redirects (from_path, to_path, status, note) VALUES ('/id/our-people
 INSERT INTO redirects (from_path, to_path, status, note) VALUES ('/id/solutions/', '/id/layanan/', 301, NULL) ON CONFLICT (from_path) DO NOTHING;
 INSERT INTO redirects (from_path, to_path, status, note) VALUES ('/id/news/', '/id/wawasan/', 301, NULL) ON CONFLICT (from_path) DO NOTHING;
 INSERT INTO redirects (from_path, to_path, status, note) VALUES ('/id/contact-us/', '/id/kontak/', 301, NULL) ON CONFLICT (from_path) DO NOTHING;
+INSERT INTO redirects (from_path, to_path, status, note) VALUES ('/id/careers/', '/careers/', 301, 'ID mirror of an unchanged EN page; no dedicated /id/ careers page yet') ON CONFLICT (from_path) DO NOTHING;
 INSERT INTO redirects (from_path, to_path, status, note) VALUES ('/en/*', '/*', 301, 'EN stays at root') ON CONFLICT (from_path) DO NOTHING;
 INSERT INTO redirects (from_path, to_path, status, note) VALUES ('/hello-world/', NULL, 410, 'WordPress default post') ON CONFLICT (from_path) DO NOTHING;
 INSERT INTO redirects (from_path, to_path, status, note) VALUES ('/be-my-guest/', NULL, 410, 'theme demo post') ON CONFLICT (from_path) DO NOTHING;
@@ -139,6 +140,14 @@ INSERT INTO redirects (from_path, to_path, status, note) VALUES ('/nulla-magna/'
 INSERT INTO redirects (from_path, to_path, status, note) VALUES ('/category/fashion/', NULL, 410, 'dummy taxonomy') ON CONFLICT (from_path) DO NOTHING;
 INSERT INTO redirects (from_path, to_path, status, note) VALUES ('/category/music/', NULL, 410, 'dummy taxonomy') ON CONFLICT (from_path) DO NOTHING;
 INSERT INTO redirects (from_path, to_path, status, note) VALUES ('/category/uncategorized/', NULL, 410, 'dummy taxonomy') ON CONFLICT (from_path) DO NOTHING;
+INSERT INTO redirects (from_path, to_path, status, note) VALUES ('/author/asplawyer/', NULL, 410, 'WordPress default author archive; not in the original nav crawl') ON CONFLICT (from_path) DO NOTHING;
+INSERT INTO redirects (from_path, to_path, status, note) VALUES ('/id/hello-world/', NULL, 410, 'TranslatePress ID mirror of the same WordPress default post') ON CONFLICT (from_path) DO NOTHING;
+INSERT INTO redirects (from_path, to_path, status, note) VALUES ('/id/be-my-guest/', NULL, 410, 'TranslatePress ID mirror of the same theme demo post') ON CONFLICT (from_path) DO NOTHING;
+INSERT INTO redirects (from_path, to_path, status, note) VALUES ('/id/nulla-magna/', NULL, 410, 'TranslatePress ID mirror of the same theme demo post') ON CONFLICT (from_path) DO NOTHING;
+INSERT INTO redirects (from_path, to_path, status, note) VALUES ('/id/category/fashion/', NULL, 410, 'TranslatePress ID mirror of the same dummy taxonomy') ON CONFLICT (from_path) DO NOTHING;
+INSERT INTO redirects (from_path, to_path, status, note) VALUES ('/id/category/music/', NULL, 410, 'TranslatePress ID mirror of the same dummy taxonomy') ON CONFLICT (from_path) DO NOTHING;
+INSERT INTO redirects (from_path, to_path, status, note) VALUES ('/id/category/uncategorized/', NULL, 410, 'TranslatePress ID mirror of the same dummy taxonomy') ON CONFLICT (from_path) DO NOTHING;
+INSERT INTO redirects (from_path, to_path, status, note) VALUES ('/id/author/asplawyer/', NULL, 410, 'TranslatePress ID mirror of the same author archive') ON CONFLICT (from_path) DO NOTHING;
 
 -- Deliberately NOT seeded: cases (no matter is cleared — content request 6),
 -- articles (nothing published yet — editorial-calendar.md), users, media, leads,

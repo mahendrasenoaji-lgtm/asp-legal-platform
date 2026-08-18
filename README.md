@@ -14,7 +14,7 @@ posts and categories for fashion and music on its news page).
 | 2 | UI Design System | Built and testable (`prototype/styleguide.html`, `/styleguide`) |
 | 3 | Frontend | **Next.js port live** — 59 routes (`app/`), static prototype kept for reference |
 | 4 | CMS / Backend | **Migrated & seeded** — schema runs clean on Postgres 16, all 4 integrity guards verified to actually reject bad rows (see `docs/04-cms-backend.md` §0). CMS editor itself still unbuilt |
-| 5 | SEO | Specified; redirect config generated |
+| 5 | SEO | **Redirect map crawled against the live site** (`docs/05-seo.md` §5.1) — 2 real gaps found and fixed; Search Console diff still blocked on ASP's own access (content request 13) |
 | 6 | Security | Configured (`config/security-headers.js`); not tested |
 | 7 | QA | Plan written; link check passing, rest pending infrastructure |
 | 8 | Deployment | Runbook written; nothing deployed |
