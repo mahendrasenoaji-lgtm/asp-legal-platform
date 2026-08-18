@@ -105,6 +105,10 @@ putuskan berdasarkan data apakah kadens dinaikkan ke 3 per bulan atau tetap 2.
 
 # OUTLINE ARTIKEL #1
 
+**Draf T-10 (AI first-pass, belum diverifikasi, belum ditugaskan penulis) ada di
+`docs/drafts/01-pkpu-45-hari-DRAFT.md`.** Bukan untuk diterbitkan sampai checklist di
+bagian atas file itu selesai — lihat file itu untuk status lengkap.
+
 ## 45 hari pertama PKPU: apa yang terjadi, dan apa yang hilang kalau terlambat
 
 | | |
