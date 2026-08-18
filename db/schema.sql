@@ -6,7 +6,6 @@
 -- =============================================================================
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
-CREATE EXTENSION IF NOT EXISTS "unaccent";
 CREATE EXTENSION IF NOT EXISTS "citext";
 
 CREATE TYPE locale          AS ENUM ('en', 'id');
@@ -445,14 +444,22 @@ CREATE MATERIALIZED VIEW search_index AS
   SELECT 'award', w.id, w.slug, 'en'::locale, w.title, coalesce(w.description, '')
     FROM awards w WHERE w.is_published;
 
--- unaccent() is STABLE, not IMMUTABLE, so Postgres refuses it directly in a
--- functional index expression ("functions in index expression must be
--- marked IMMUTABLE"). The standard fix: wrap it as IMMUTABLE. This is safe
--- here because the unaccent dictionary this app uses is fixed at deploy
--- time, not data-dependent.
-CREATE OR REPLACE FUNCTION immutable_unaccent(text) RETURNS text AS $$
-  SELECT unaccent('unaccent', $1)
-$$ LANGUAGE sql IMMUTABLE PARALLEL SAFE STRICT;
-
+-- Originally accent-folded via unaccent() (wrapped IMMUTABLE — unaccent()
+-- itself is STABLE, and a plain functional index requires IMMUTABLE).
+-- Dropped after testing against the real production database (Neon):
+-- defining that wrapper function intermittently failed ("text search
+-- dictionary unaccent does not exist") a few hundred statements after
+-- CREATE EXTENSION "unaccent" ran earlier in the very same script, despite
+-- the dictionary being immediately queryable from a separate connection
+-- the whole time, and despite a reconnect immediately before the
+-- statement (tried first) not reliably fixing it either — this looks like
+-- Neon-side propagation lag around the unaccent dictionary specifically,
+-- not anything deterministic about the SQL. Search isn't wired to the app
+-- yet (no /api/search route exists — see docs/04-cms-backend.md §6), so
+-- losing accent-folding is a real but currently inconsequential trade-off
+-- for a schema that actually migrates on the database this ships to,
+-- rather than one that only migrates on a local instance. Revisit once
+-- search is real: either retry the unaccent wrapper against Neon at that
+-- point, or fold accents in the application layer before it hits Postgres.
 CREATE INDEX search_index_fts ON search_index
-  USING gin (to_tsvector('simple', immutable_unaccent(title || ' ' || body)));
+  USING gin (to_tsvector('simple', title || ' ' || body));
