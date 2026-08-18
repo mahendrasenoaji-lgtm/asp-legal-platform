@@ -7,69 +7,98 @@ Local Claude memory does not sync across machines; this file is the durable arti
 
 Repo: https://github.com/mahendrasenoaji-lgtm/asp-legal-platform (public)
 Local path: `~/Documents/asp-law/files/asp-legal-platform/asp-legal-platform`
+**Live site: https://asp-legal-platform.vercel.app** (Vercel, auto-deploys from `main`)
 
 | Phase | State |
 |---|---|
 | 1 Information Architecture | Complete — awaiting client sign-off |
-| 2 UI Design System | Built and testable (`/styleguide` in the Next.js app) |
-| 3 Frontend | **Done** — real Next.js 14 App Router + TypeScript app in `app/`, 59 static routes, `npm run build` passes **reading live from Postgres**. Static HTML prototype in `prototype/` kept only for reference |
-| 4 CMS / Backend | **Done (locally)** — `db/schema.sql` migrated + seeded against a local Postgres 16 (`asp_legal_dev`), all 4 integrity guards verified to actually reject bad rows, and **`lib/data.ts` now queries it directly** (`lib/db.ts`) instead of `data/*.json`. CMS editor (Payload) still not installed — no admin UI exists, every DB row got there via `db/seed.py` |
-| 5 SEO | **Done to the extent possible** — live-crawled `asplawyer.co.id` (sitemap, links, manual probing), found the legacy site runs TranslatePress (every URL incl. junk mirrored under `/id/`) and a missing author-archive redirect, fixed both. `data/redirects.csv` now 31 rows. Search Console diff still blocked on ASP's own account access |
-| 6 Security | **Headers wired in + verified with a real browser** (`middleware.ts`) — found and fixed a CSP bug that silently broke all client hydration (nonce vs. static generation). Pentest, uploads, admin/MFA, WAF, backups still need real infra |
-| 7 QA | **Real Lighthouse runs** against `npm run start`: Accessibility 100, Performance 91, Best Practices 92. Found + fixed 2 real a11y bugs. Cross-browser, screen readers, real devices still pending |
-| 8 Deployment | **Paused mid-setup** — Vercel CLI is authenticated (`vercel whoami` → `mahendrasenoaji-6835`), but deploying needs a cloud Postgres reachable at build time first (`lib/data.ts` queries the DB during static generation; Vercel's build environment can't reach the local `asp_legal_dev` on this Mac). User was asked to choose: (a) provision Vercel Postgres/Neon via the marketplace on their existing account, (b) supply an existing cloud `DATABASE_URL`, or (c) temporarily revert to reading `data/*.json` at build time to ship without a DB. No answer yet — paused, not decided against |
+| 2 UI Design System | Built and testable (`/styleguide` on the live site) |
+| 3 Frontend | **Done** — Next.js 14 App Router + TypeScript, 59 static routes, reads live from Postgres. Static HTML prototype in `prototype/` kept only for reference |
+| 4 CMS / Backend | **Done, on production too** — `db/schema.sql` migrated + seeded against both local Postgres and Neon (production), all 4 integrity guards verified on both. `lib/data.ts` queries the DB directly. CMS editor (Payload) still not installed — no admin UI exists |
+| 5 SEO | **Done to the extent possible** — live-crawled `asplawyer.co.id`, found it runs TranslatePress (every URL incl. junk mirrored under `/id/`), fixed the redirect map (31 rows). Search Console diff still blocked on ASP's own account access |
+| 6 Security | **Headers wired in + verified with a real browser**, live in production (`middleware.ts`) — found and fixed a CSP bug that silently broke all client hydration. Pentest, uploads, admin/MFA, WAF still need real infra ASP would provide |
+| 7 QA | **Real Lighthouse runs**: Accessibility 100, Performance 91, Best Practices 92. Found + fixed 2 real a11y bugs. Cross-browser, screen readers, real devices still pending |
+| 8 Deployment | **Live.** Vercel project `asp-legal-platform` (team `alwayslearn`), auto-deploys on push to `main`. Neon Postgres production DB provisioned via Vercel's storage marketplace, migrated + seeded (found and fixed a Neon-specific migration bug — see below). `DATABASE_URL` set across Production/Preview/Development in Vercel project settings automatically |
 
-## Resume point (paused 18 Aug 2026, mid-deployment)
+## What's actually left
 
-Next message in a new session should be: pick up the Vercel deployment question above —
-which cloud Postgres to use — then run through `vercel` CLI (already authenticated). A
-proposal document comparing legacy vs rebuild also exists: `docs/proposal/rebuild-proposal.html`,
-already pushed, and published as a private Claude Artifact for review before sharing with ASP.
-
-## What to do next, in order
-
-1. **Phase 6/7/8's remaining items need real infrastructure** (a server, a domain, a hosting
-   account) that didn't exist in this session: penetration testing, upload pipeline (S3 +
-   ClamAV), admin/MFA/RBAC (no admin UI exists at all), WAF, backups, cross-browser/device QA,
-   and actual deployment. What *could* be done locally was: headers wired into the app and
-   verified with a real browser (not just curl), and Lighthouse run for real — both done, and
-   both caught real bugs (see the Phase 6/7 rows above).
-2. ~~Wire the database into the app~~ — **done.** `lib/data.ts` now queries Postgres via
-   `lib/db.ts`. ~~No `firm_settings` table~~ and ~~no `sort_order` on industries/article
-   categories~~ — both fixed too: `firm_settings` is a singleton table seeded from
-   `firm.json`, and both taxonomy tables now have `sort_order` seeded from JSON array
-   order. Remaining DB-related gap: there's still no CMS editor UI — every row in the
-   database got there via `db/seed.py`, not a person filling a form.
-3. **13 content items are still owed by ASP**, not by development — see
-   `docs/content-requests.md`. Nothing further can be built for lawyer bios, practice
-   overviews, articles, etc. until those arrive; inventing them is explicitly against the
-   brief (`CLAUDE.md` "Hard rules").
-4. Four open architecture decisions (fee-earner count 40 vs 23, "Corporate Legal Services"
-   practice, "Leaders" vs "Counsel" tier naming, tier naming for Herlin/Muhamad) also block
-   real progress on People/Practices content — see `CLAUDE.md`.
+1. **Nothing further can happen on lawyer bios, practice overviews, articles, etc. until
+   ASP supplies them** — 13 content items owed, see `docs/content-requests.md`. Inventing
+   them is explicitly against the brief (`CLAUDE.md` "Hard rules").
+2. **4 open architecture decisions** block real progress on People/Practices content: fee-earner
+   count 40 vs 23, "Corporate Legal Services" practice, "Leaders" vs "Counsel" tier naming,
+   whether the Herlin/Muhamad bios need review before going live. See `CLAUDE.md`.
+3. **Phase 6/7's remainder needs infrastructure ASP would provide, not this laptop**:
+   penetration testing against the live URL, the intake form's actual upload pipeline (S3 +
+   ClamAV), an admin UI with real MFA/RBAC (Payload CMS isn't installed), a custom domain
+   (currently on the free `*.vercel.app` subdomain), WAF, and cross-browser/real-device QA.
+4. **CMS editor**: Payload is recommended (`docs/04-cms-backend.md` §1) but not installed —
+   every row in the database got there via `db/seed.py`, not a person filling a form. This
+   is the natural next *build* step once the open decisions above are resolved.
+5. A proposal document comparing legacy vs rebuild exists: `docs/proposal/rebuild-proposal.html`
+   (pushed) and `~/Desktop/ASP-Rebuild-Proposal.docx` (local only, not committed per the
+   user's request) — both ready to share with ASP, still private.
 
 ## Local dev environment notes
 
-- Next.js app: **needs the database running first** — `lib/data.ts` queries Postgres at
-  build/request time now. `cp config/.env.example .env.local`, set `DATABASE_URL` to the
-  `asp_legal_dev` database below, then `npm install && npm run dev` (or `npm run build` to
-  check the 59-route static generation still passes).
-- Database: a local Postgres 16 exists at `asp_legal_dev` (Homebrew, data dir
-  `/usr/local/var/postgresql@16`, started via `brew services start postgresql@16`). To
+- Next.js app: `cp config/.env.example .env.local`, set `DATABASE_URL` (local Postgres or
+  the Neon production string — ask before pointing local dev at production data), then
+  `npm install && npm run dev`. `npm run build` runs a postbuild step
+  (`scripts/generate-csp-hashes.mjs`) that needs a **second** `next build` internally — this
+  is intentional (see the CSP section of `docs/06-security.md` §0), not a hang.
+- Local Postgres 16 at `asp_legal_dev` (Homebrew, `brew services start postgresql@16`). To
   rebuild from scratch: `dropdb asp_legal_dev && createdb asp_legal_dev && psql -d
   asp_legal_dev -v ON_ERROR_STOP=1 -f db/schema.sql && python3 db/seed.py > db/seed.sql &&
   psql -d asp_legal_dev -v ON_ERROR_STOP=1 -f db/seed.sql`. Guard tests:
   `psql -d asp_legal_dev -f db/verify_guards.sql`.
-- This database only exists on this machine — it is not part of the git repo (only
-  `db/schema.sql`, `db/seed.py` and the generated `db/seed.sql` are committed) and won't
-  follow to another computer. Recreate it there with the commands above.
+- **Production database is Neon**, connected to the Vercel project. Get its connection
+  string via `vercel env pull` (needs `vercel login` + project already linked — it is, via
+  `.vercel/` locally, which is gitignored) or the Vercel dashboard → Storage. Re-running
+  `db/schema.sql` / `db/seed.sql` against it is safe — both are idempotent
+  (`CREATE OR REPLACE` / `IF NOT EXISTS` / `ON CONFLICT` throughout).
+- Vercel CLI: `npx vercel` (authenticated as `mahendrasenoaji-6835`, team `alwayslearn`).
+  `npx vercel ls` for deployment status, `npx vercel env ls production` for env vars.
 
-## Two real bugs found and fixed this session (not just written, actually run)
+## Real bugs found and fixed this session (not just written, actually run)
 
-- `search_index_fts` didn't build: `unaccent()` is `STABLE`, not `IMMUTABLE` — fixed with an
-  `immutable_unaccent()` wrapper.
-- `search_index`'s lawyer branch used an inner join to `lawyer_translations`, so 21 of 23
-  published lawyers (everyone without a bio yet) were entirely unfindable by name in search,
-  not just bio-less. Fixed with a `LEFT JOIN`.
+Phase 3/DB wiring:
+- `search_index_fts` didn't build: `unaccent()` is `STABLE`, not `IMMUTABLE`.
+- `search_index`'s lawyer branch used an inner join, so 21 of 23 published lawyers were
+  unfindable by search, not just bio-less. Fixed with a `LEFT JOIN`.
+- No `firm_settings` table existed; `lib/data.ts` read `firm.json` directly as a workaround.
+  Added a singleton table (`id boolean PRIMARY KEY DEFAULT true` + `CHECK (id)`), seeded,
+  wired up.
+- `industries`/`article_categories` had no `sort_order`, so seeding silently re-sorted both
+  alphabetically instead of preserving the curated JSON order. Added the column.
 
-Both are in `db/schema.sql`; see `docs/04-cms-backend.md` §0 for the full writeup.
+Phase 6 (security headers):
+- First CSP attempt used a per-request nonce. Looked correct via `curl`, even rendered
+  visually — but Lighthouse against a real browser showed it blocking every script,
+  silently breaking all client-side hydration (drawer, form validation, scroll-reveal).
+  Root cause: every page is statically generated once at build time, so a nonce generated
+  fresh per request can never match a nonce baked into build-time HTML. Fixed with
+  per-route SHA-256 hashes computed from the actual build output
+  (`scripts/generate-csp-hashes.mjs`), shipped as `Content-Security-Policy-Report-Only`
+  rather than enforcing, since one inline-script source Next's hydration injects still
+  isn't captured by the static-HTML scan.
+- Drawer's `aria-hidden="true"` when closed didn't stop keyboard focus into its links
+  (`inert` attribute doesn't render under React 18's server renderer — confirmed absent
+  from output HTML). Fixed with explicit `tabIndex={-1}`.
+- Footer's `<h4>` column labels broke heading order on sparse pages (h1 straight to h4).
+  Changed to a styled `<p>` — footer nav groupings aren't part of the content outline.
+
+Phase 8 (production database):
+- `immutable_unaccent()` (the Phase 3 fix above) migrates clean on local Postgres 16 but
+  intermittently fails to define on Neon — "text search dictionary unaccent does not
+  exist" — hundreds of statements after `CREATE EXTENSION "unaccent"` ran earlier in the
+  same script, despite the dictionary being immediately queryable from a separate
+  connection. Tested multiple fixes directly against production (not guessed): isolated
+  repros never failed, `\connect` right before the statement didn't reliably fix the real
+  script, `\connect` + `pg_sleep(2)` still didn't either. Concluded this is Neon-side
+  propagation lag, not controllable from the SQL side, and since search isn't wired to the
+  app yet, dropped the `unaccent` dependency entirely — `search_index_fts` now indexes
+  `to_tsvector('simple', title || ' ' || body)` directly. Full writeup:
+  `docs/04-cms-backend.md` §0.
+
+All fixes are in `db/schema.sql`, `middleware.ts`, `components/MobileDrawer.tsx`,
+`components/Footer.tsx`. Docs: `docs/04-cms-backend.md` §0, `docs/06-security.md` §0.

@@ -17,10 +17,13 @@ posts and categories for fashion and music on its news page).
 | 5 | SEO | **Redirect map crawled against the live site** (`docs/05-seo.md` §5.1) — 2 real gaps found and fixed; Search Console diff still blocked on ASP's own access (content request 13) |
 | 6 | Security | **Headers wired in and verified against a real browser** (`middleware.ts`, `docs/06-security.md` §0) — caught and fixed a CSP bug that silently broke all client-side hydration. Pentest, uploads, admin/MFA, WAF, backups still need real infra |
 | 7 | QA | **Lighthouse actually run** against the app — Accessibility 100, Performance 91 (`docs/07-qa.md` §1). Cross-browser, screen readers, real devices still pending |
-| 8 | Deployment | Runbook written; nothing deployed |
+| 8 | Deployment | **Live** — https://asp-legal-platform.vercel.app (Vercel, auto-deploys from `main`), Neon Postgres production DB provisioned and seeded. Verified: real data renders, security headers active, still correctly `noindex` |
 
-**Not production-ready.** Phases 6 and 7 require real infrastructure and have not been
-executed. Four content decisions are still open — see `docs/content-requests.md`.
+**Live, but still not production-ready in the sense that matters** — deployed and reachable,
+correctly `noindex`, with the status banner on every page. Phases 6 and 7's remainder
+(penetration test, upload pipeline, admin/MFA, cross-browser/device QA) still need work this
+environment couldn't do. Four content decisions are still open — see
+`docs/content-requests.md`.
 
 ## Quick start
 
