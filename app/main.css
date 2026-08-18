@@ -486,7 +486,12 @@ a.card:hover { box-shadow: var(--shadow-lift); transform: translateY(-3px); bord
 .footer a { text-decoration: none; color: var(--asp-on-dark-muted); font-size: var(--t-small); }
 .footer a:hover { color: var(--asp-gold); }
 .footer__grid { display: grid; grid-template-columns: 1.4fr repeat(3, 1fr); gap: var(--s-6); }
-.footer h4 { font-family: var(--font-docket); font-size: var(--t-docket); letter-spacing: var(--ls-docket); text-transform: uppercase; color: var(--asp-on-dark); margin-bottom: var(--s-4); font-weight: 400; }
+/* Footer column labels are visual grouping, not part of the page's heading
+   outline (this footer renders on every page, some of which — careers,
+   cases — have very little content above it, so an <h4> here skipped
+   straight from h1 with no h2/h3 between; Lighthouse's heading-order audit
+   flagged it site-wide). Styled the same, just not a heading element. */
+.footer__label { font-family: var(--font-docket); font-size: var(--t-docket); letter-spacing: var(--ls-docket); text-transform: uppercase; color: var(--asp-on-dark); margin-bottom: var(--s-4); font-weight: 400; }
 .footer ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-3); }
 .footer__brand { font-family: var(--font-display); font-size: var(--t-h3); margin-bottom: var(--s-4); }
 .footer__legal {

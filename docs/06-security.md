@@ -1,6 +1,74 @@
 # PHASE 6 — Security Architecture
 
-**Status:** Configuration written (`config/security-headers.js`). Not yet penetration-tested.
+**Status:** Headers actually wired into the running app (`middleware.ts`) and verified against
+a real browser, not just curl — not merely specified in `config/security-headers.js` anymore.
+Still not penetration-tested, and most of §2–§4 below (upload handling, admin/MFA, WAF,
+backups) needs real infrastructure this environment doesn't have.
+
+## 0. What actually got wired up and tested
+
+`config/security-headers.js` was Phase 6 *spec* only until this pass — never applied to a
+real response. `middleware.ts` now sets every header from it on every request, verified with
+`curl -sD -` locally and, more importantly, with a real headless-Chrome Lighthouse run
+(`npx lighthouse`), not just header presence.
+
+**The first attempt shipped broken and the only reason that's known is it was actually
+tested in a browser, not just curled.** A nonce-based CSP (following the CSP header, curl
+looked fine, page rendered) turned out to be fundamentally incompatible with this app: every
+page is statically generated once at build time, so a nonce generated fresh per request in
+middleware can never match a nonce baked into HTML rendered long before that request existed.
+Lighthouse caught it immediately — 8 blocked external chunk loads, meaning React never
+hydrated, meaning the drawer, scroll-reveal and intake-form validation were all silently
+non-functional, while the page *looked* fine because static HTML/CSS isn't affected by a
+blocked `<script>`.
+
+**The fix:** hash-based CSP instead of nonce-based. Since the HTML is fixed per build, every
+inline script's exact text — and therefore its SHA-256 hash — is fixed too.
+`scripts/generate-csp-hashes.mjs` runs as a `postbuild` step, scans every generated static
+page, and writes a per-route hash map (`lib/csp-hashes.generated.ts`) that `middleware.ts`
+looks up by pathname. Per-route rather than one site-wide list: the union across all 57 pages
+is 233 distinct hashes (~12KB of header, real risk of truncation behind an 8KB-default proxy);
+per-route keeps each response to about 7–9 hashes. The `postbuild` script itself runs `next
+build` a *second* time after writing the hashes — not a typo. Next.js bundles middleware's
+static imports at build time, so a single build compiles middleware against whatever the
+hashes file already contained (the empty placeholder, on a fresh build); the real hashes
+computed from that same build's HTML output don't exist until the build finishes, so the
+second build is what lets middleware pick them up.
+
+Even with hashes, one inline script (something Next's RSC hydration/streaming machinery
+injects that isn't present in the static HTML the postbuild step scans) still triggered a
+real React hydration failure (`error #423`) in one Lighthouse run. Rather than ship an
+enforcing policy with a known, unexplained edge case, `script-src` is delivered as
+`Content-Security-Policy-Report-Only`, not `Content-Security-Policy` — the standard,
+explicitly-recommended way to roll out a new CSP. It still sends the real header and
+would still surface real violations; it just can't take the site down over the one
+unidentified source. Switch to enforcing once that source is found and a
+report-uri/report-to endpoint exists (Phase 8) to collect violations from real traffic.
+
+`style-src` carries `'unsafe-inline'` deliberately, not as a shortcut: hashes and nonces only
+cover `<style>` elements per the CSP3 spec, never the `style=""` HTML attribute, and this
+codebase uses React's `style={{...}}` prop pervasively for spacing values across nearly every
+component. Closing that gap means migrating every one of those to a CSS class first — out of
+scope for this pass.
+
+Two accessibility bugs surfaced by the same Lighthouse runs, unrelated to CSP, both fixed:
+- The mobile drawer's `aria-hidden="true"` when closed didn't stop its links from being
+  keyboard-focusable — a screen reader/keyboard user could tab into "invisible" content. The
+  standard fix (the HTML `inert` attribute) doesn't render at all under React 18's server
+  renderer (confirmed: absent from the output HTML; `inert` boolean-attribute support landed
+  in React 19). Fixed with explicit `tabIndex={-1}` on every interactive element inside when
+  closed instead.
+- The footer's `<h4>` column labels ("Practices", "Firm", "Contact") broke heading order on
+  any page with little content above the footer (careers, cases) — h1 straight to h4, no
+  h2/h3 between. Footer nav groupings aren't part of a page's content outline; changed to a
+  styled `<p>`, same look, not a heading.
+
+Verified end to end with three consecutive `npx lighthouse` runs against `npm run start`:
+final scores **Performance 91, Accessibility 100, Best Practices 92, SEO 60** (SEO is
+correctly low — every route is still `noindex` per `SITE_READY` in `lib/constants.ts`, and
+Phase 6/7 haven't closed). The two remaining Best Practices points are a missing favicon
+(no logo file exists yet — `docs/content-requests.md` item 12, not invented here) and the
+CSP report-only informational note, both expected.
 
 ---
 
@@ -67,6 +135,13 @@ it running quietly on a subdomain.
 
 ## 6. Not done
 
-No penetration test, no dependency scan, no header verification against a live origin. The
-brief is explicit and so is this document: **nothing here may be described as
+**Done since the above sections were written:** headers verified against a real running
+instance (§0) — not a live origin (no such thing exists yet), but no longer curl-only either.
+`npm audit` has been run and acted on (Next.js pinned to 14.2.35 to clear the advisories it
+found — see the Phase 3 commit history).
+
+Still not done: no penetration test, no header verification against an actual live origin
+(TLS termination, CDN, WAF — none of it exists), no upload pipeline (§2 — no S3, no ClamAV),
+no admin/MFA/RBAC (§3 — there's no admin UI at all yet, per `docs/04-cms-backend.md`), no WAF,
+no backups. The brief is explicit and so is this document: **nothing here may be described as
 production-ready until Phase 6 and Phase 7 are executed against real infrastructure.**

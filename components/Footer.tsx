@@ -21,7 +21,7 @@ export async function Footer() {
             </p>
           </div>
           <div>
-            <h4>Practices</h4>
+            <p className="footer__label">Practices</p>
             <ul>
               {PRACTICES.slice(0, 6).map((p) => (
                 <li key={p.slug}>
@@ -34,7 +34,7 @@ export async function Footer() {
             </ul>
           </div>
           <div>
-            <h4>Firm</h4>
+            <p className="footer__label">Firm</p>
             <ul>
               <li>
                 <a href="/about">About</a>
@@ -54,7 +54,7 @@ export async function Footer() {
             </ul>
           </div>
           <div>
-            <h4>Contact</h4>
+            <p className="footer__label">Contact</p>
             <ul>
               <li>
                 {o.name}

@@ -15,8 +15,8 @@ posts and categories for fashion and music on its news page).
 | 3 | Frontend | **Next.js port live** — 59 routes (`app/`), **now reading from Postgres** (`lib/data.ts`), static prototype kept for reference |
 | 4 | CMS / Backend | **Migrated, seeded, and wired into the app** — schema runs clean on Postgres 16, all 4 integrity guards verified to actually reject bad rows (see `docs/04-cms-backend.md` §0), `lib/data.ts` queries it directly. CMS editor (Payload) itself still unbuilt |
 | 5 | SEO | **Redirect map crawled against the live site** (`docs/05-seo.md` §5.1) — 2 real gaps found and fixed; Search Console diff still blocked on ASP's own access (content request 13) |
-| 6 | Security | Configured (`config/security-headers.js`); not tested |
-| 7 | QA | Plan written; link check passing, rest pending infrastructure |
+| 6 | Security | **Headers wired in and verified against a real browser** (`middleware.ts`, `docs/06-security.md` §0) — caught and fixed a CSP bug that silently broke all client-side hydration. Pentest, uploads, admin/MFA, WAF, backups still need real infra |
+| 7 | QA | **Lighthouse actually run** against the app — Accessibility 100, Performance 91 (`docs/07-qa.md` §1). Cross-browser, screen readers, real devices still pending |
 | 8 | Deployment | Runbook written; nothing deployed |
 
 **Not production-ready.** Phases 6 and 7 require real infrastructure and have not been

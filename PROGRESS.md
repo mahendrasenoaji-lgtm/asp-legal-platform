@@ -15,14 +15,18 @@ Local path: `~/Documents/asp-law/files/asp-legal-platform/asp-legal-platform`
 | 3 Frontend | **Done** — real Next.js 14 App Router + TypeScript app in `app/`, 59 static routes, `npm run build` passes **reading live from Postgres**. Static HTML prototype in `prototype/` kept only for reference |
 | 4 CMS / Backend | **Done (locally)** — `db/schema.sql` migrated + seeded against a local Postgres 16 (`asp_legal_dev`), all 4 integrity guards verified to actually reject bad rows, and **`lib/data.ts` now queries it directly** (`lib/db.ts`) instead of `data/*.json`. CMS editor (Payload) still not installed — no admin UI exists, every DB row got there via `db/seed.py` |
 | 5 SEO | **Done to the extent possible** — live-crawled `asplawyer.co.id` (sitemap, links, manual probing), found the legacy site runs TranslatePress (every URL incl. junk mirrored under `/id/`) and a missing author-archive redirect, fixed both. `data/redirects.csv` now 31 rows. Search Console diff still blocked on ASP's own account access |
-| 6 Security | Not started against real infra — config only |
-| 7 QA | Not started — plan only, plus the link check that already passes |
+| 6 Security | **Headers wired in + verified with a real browser** (`middleware.ts`) — found and fixed a CSP bug that silently broke all client hydration (nonce vs. static generation). Pentest, uploads, admin/MFA, WAF, backups still need real infra |
+| 7 QA | **Real Lighthouse runs** against `npm run start`: Accessibility 100, Performance 91, Best Practices 92. Found + fixed 2 real a11y bugs. Cross-browser, screen readers, real devices still pending |
 | 8 Deployment | Not started — runbook only, nothing deployed |
 
 ## What to do next, in order
 
-1. **Phase 6/7/8 all need real infrastructure** (a server, a domain, a hosting account) that
-   didn't exist in this session — none of them can progress further on a laptop alone.
+1. **Phase 6/7/8's remaining items need real infrastructure** (a server, a domain, a hosting
+   account) that didn't exist in this session: penetration testing, upload pipeline (S3 +
+   ClamAV), admin/MFA/RBAC (no admin UI exists at all), WAF, backups, cross-browser/device QA,
+   and actual deployment. What *could* be done locally was: headers wired into the app and
+   verified with a real browser (not just curl), and Lighthouse run for real — both done, and
+   both caught real bugs (see the Phase 6/7 rows above).
 2. ~~Wire the database into the app~~ — **done.** `lib/data.ts` now queries Postgres via
    `lib/db.ts`. ~~No `firm_settings` table~~ and ~~no `sort_order` on industries/article
    categories~~ — both fixed too: `firm_settings` is a singleton table seeded from
