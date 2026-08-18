@@ -18,6 +18,45 @@ CREATE TYPE case_status      AS ENUM ('ongoing', 'completed', 'settled', 'withdr
 CREATE TYPE lead_status     AS ENUM ('new', 'conflict_check', 'contacted', 'engaged', 'declined', 'spam');
 CREATE TYPE user_role       AS ENUM ('super_admin', 'managing_editor', 'author', 'reviewer', 'marketing', 'it_security');
 
+-- ------------------------------------------------------------ firm-wide ----
+
+-- Singleton table: one firm, one row. `id boolean PRIMARY KEY DEFAULT true`
+-- plus `CHECK (id)` is the standard Postgres trick — id can only ever be
+-- `true`, and the primary key means only one such row can exist, so a
+-- second INSERT fails on the key rather than needing an app-level check.
+-- Added because data/firm.json (name, office, claimed metrics) had no table
+-- to live in; lib/data.ts read the JSON directly as a workaround until now.
+CREATE TABLE firm_settings (
+  id                     boolean PRIMARY KEY DEFAULT true,
+  legal_name             text NOT NULL,
+  short_name             text NOT NULL,
+  founded                date NOT NULL,
+  founders               text[] NOT NULL DEFAULT '{}',
+  core_values            text[] NOT NULL DEFAULT '{}',
+  office_name            text,
+  office_street          text,
+  office_district        text,
+  office_city            text,
+  office_region          text,
+  office_postal_code     text,
+  office_country         text,
+  office_phone           text,
+  office_email           citext,
+  office_geo_lat         double precision,
+  office_geo_lng         double precision,
+  office_opening_hours   text,
+  office_linkedin_url    text,
+  -- "Claimed" because these are numbers ASP states about itself, not
+  -- derived from published counts — see claimed_metrics_warning and the
+  -- 40-vs-23 fee-earner discrepancy flagged throughout the app.
+  claimed_fee_earners    integer,
+  claimed_practice_areas integer,
+  claimed_clients        integer,
+  claimed_metrics_warning text,
+  updated_at             timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT firm_settings_singleton CHECK (id)
+);
+
 -- ---------------------------------------------------------------- people ----
 
 CREATE TABLE lawyers (
@@ -100,18 +139,27 @@ CREATE TRIGGER practice_lead_guard
 
 -- ------------------------------------------------------------ taxonomies ----
 
+-- sort_order exists because data/industries.json and insight-categories.json
+-- ship in a curated order (not alphabetical) and the original CREATE TABLE
+-- here had nowhere to put it — seeding lost it, silently re-sorting both
+-- lists alphabetically. Without a stated order to preserve, sort_order is
+-- assigned by db/seed.py in the JSON's own array order, which at least
+-- keeps whatever ASP or the original author intended, until someone
+-- actively re-curates it.
 CREATE TABLE industries (
-  id      uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  slug    text UNIQUE NOT NULL,
-  name_en text NOT NULL,
-  name_id text NOT NULL
+  id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  slug       text UNIQUE NOT NULL,
+  name_en    text NOT NULL,
+  name_id    text NOT NULL,
+  sort_order integer NOT NULL DEFAULT 100
 );
 
 CREATE TABLE article_categories (
-  id      uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  slug    text UNIQUE NOT NULL,
-  name_en text NOT NULL,
-  name_id text NOT NULL
+  id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  slug       text UNIQUE NOT NULL,
+  name_en    text NOT NULL,
+  name_id    text NOT NULL,
+  sort_order integer NOT NULL DEFAULT 100
 );
 
 -- --------------------------------------------------------------- content ----

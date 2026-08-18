@@ -4,7 +4,7 @@ import { StatusBar } from "../../../components/StatusBar";
 import { Breadcrumbs } from "../../../components/Breadcrumbs";
 import { EmptyState } from "../../../components/EmptyState";
 import { CtaBand } from "../../../components/CtaBand";
-import { FIRM, getLawyer, getLawyers, initials } from "../../../lib/data";
+import { getFirm, getLawyer, getLawyers, initials } from "../../../lib/data";
 
 export async function generateStaticParams() {
   const lawyers = await getLawyers();
@@ -24,6 +24,7 @@ export default async function LawyerPage({ params }: { params: { slug: string } 
   const lawyer = await getLawyer(params.slug);
   if (!lawyer) notFound();
 
+  const FIRM = await getFirm();
   const bio = lawyer.bio_full;
 
   return (

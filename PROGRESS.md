@@ -24,10 +24,11 @@ Local path: `~/Documents/asp-law/files/asp-legal-platform/asp-legal-platform`
 1. **Phase 6/7/8 all need real infrastructure** (a server, a domain, a hosting account) that
    didn't exist in this session — none of them can progress further on a laptop alone.
 2. ~~Wire the database into the app~~ — **done.** `lib/data.ts` now queries Postgres via
-   `lib/db.ts`. Remaining DB-related gaps: no `firm_settings` table yet (firm.json still
-   used for that), `industries`/`article_categories` have no `sort_order` column so their
-   curated JSON order doesn't survive seeding, and there's still no CMS editor UI — every
-   row in the database got there via `db/seed.py`, not a person filling a form.
+   `lib/db.ts`. ~~No `firm_settings` table~~ and ~~no `sort_order` on industries/article
+   categories~~ — both fixed too: `firm_settings` is a singleton table seeded from
+   `firm.json`, and both taxonomy tables now have `sort_order` seeded from JSON array
+   order. Remaining DB-related gap: there's still no CMS editor UI — every row in the
+   database got there via `db/seed.py`, not a person filling a form.
 3. **13 content items are still owed by ASP**, not by development — see
    `docs/content-requests.md`. Nothing further can be built for lawyer bios, practice
    overviews, articles, etc. until those arrive; inventing them is explicitly against the

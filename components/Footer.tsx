@@ -1,7 +1,7 @@
-import { FIRM, getPractices } from "../lib/data";
+import { getFirm, getPractices } from "../lib/data";
 
 export async function Footer() {
-  const PRACTICES = await getPractices();
+  const [PRACTICES, FIRM] = await Promise.all([getPractices(), getFirm()]);
   const o = FIRM.office;
   const year = new Date().getFullYear();
   return (

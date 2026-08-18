@@ -2,14 +2,15 @@ import type { Metadata } from "next";
 import { StatusBar } from "../../components/StatusBar";
 import { Breadcrumbs } from "../../components/Breadcrumbs";
 import { IntakeForm } from "../../components/IntakeForm";
-import { FIRM } from "../../lib/data";
+import { getFirm } from "../../lib/data";
 
 export const metadata: Metadata = {
   title: "Discuss your matter",
   description: "Legal intake form for Arifudin Susanto Partnership.",
 };
 
-export default function ConsultationPage() {
+export default async function ConsultationPage() {
+  const FIRM = await getFirm();
   return (
     <>
       <StatusBar note="Form validates client-side; nothing is submitted" />

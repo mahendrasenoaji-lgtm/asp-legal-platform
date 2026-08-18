@@ -2,14 +2,15 @@ import type { Metadata } from "next";
 import { StatusBar } from "../../components/StatusBar";
 import { Breadcrumbs } from "../../components/Breadcrumbs";
 import { EmptyState } from "../../components/EmptyState";
-import { FIRM } from "../../lib/data";
+import { getFirm } from "../../lib/data";
 
 export const metadata: Metadata = {
   title: "Contact",
   description: "Contact Arifudin Susanto Partnership, Jakarta.",
 };
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const FIRM = await getFirm();
   const o = FIRM.office;
   return (
     <>

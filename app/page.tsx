@@ -6,7 +6,7 @@ import { CtaBand } from "../components/CtaBand";
 import { PersonCard } from "../components/PersonCard";
 import { AwardRow } from "../components/AwardRow";
 import { PracticeCard } from "../components/PracticeCard";
-import { FIRM, getAwards, getLawyers, getPractices } from "../lib/data";
+import { getAwards, getFirm, getLawyers, getPractices } from "../lib/data";
 
 const STEPS: [string, string, string, "statutory" | "key"][] = [
   ["Filing", "Petition lodged", "Commercial Court registers the petition and sets the first hearing.", "statutory"],
@@ -18,10 +18,11 @@ const STEPS: [string, string, string, "statutory" | "key"][] = [
 ];
 
 export default async function HomePage() {
-  const [LAWYERS, PRACTICES, AWARDS] = await Promise.all([
+  const [LAWYERS, PRACTICES, AWARDS, FIRM] = await Promise.all([
     getLawyers(),
     getPractices(),
     getAwards(),
+    getFirm(),
   ]);
   const m = FIRM.claimed_metrics;
   const flagship = PRACTICES.filter((p) => p.tier === "flagship");

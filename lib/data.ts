@@ -1,16 +1,11 @@
-// Central data access. Every page reads through here, never the database or
-// data/*.json directly — this is the seam docs/04-cms-backend.md §6 asked
-// for. As of this pass it reads the seeded Postgres database (db/schema.sql,
-// db/seed.py) for everything that has a table; firm.json stays the source
-// for firm-wide settings because the schema has no table for those yet (no
-// `firm`/`organization` table exists in db/schema.sql — a real gap, not an
-// oversight here; flagged rather than worked around silently).
+// Central data access. Every page reads through here, never the database
+// directly — this is the seam docs/04-cms-backend.md §6 asked for. Every
+// table in db/schema.sql is queried from here, including firm_settings.
 //
 // `cache()` memoises each query per request/build so the ~12-23 rows these
 // tables hold aren't re-fetched once per static page during `next build`.
 
 import { cache } from "react";
-import firmData from "../data/firm.json";
 import { pool } from "./db";
 import type { Award, Firm, Industry, InsightCategory, Lawyer, Practice } from "./types";
 
@@ -19,7 +14,43 @@ import type { Award, Firm, Industry, InsightCategory, Lawyer, Practice } from ".
 // (see the comment at the top of that file for why).
 export { DISCLAIMER, NAV, SITE_READY, initials, isLeadershipTier } from "./constants";
 
-export const FIRM = firmData as Firm;
+export const getFirm = cache(async (): Promise<Firm> => {
+  const { rows } = await pool.query(`SELECT * FROM firm_settings WHERE id = true`);
+  const r = rows[0];
+  if (!r) {
+    throw new Error(
+      "firm_settings has no row — run db/seed.py and reload it (see PROGRESS.md).",
+    );
+  }
+  return {
+    _source: "database: firm_settings (originally data/firm.json)",
+    legal_name: r.legal_name,
+    short_name: r.short_name,
+    founded: r.founded.toISOString().slice(0, 10),
+    founders: r.founders,
+    core_values: r.core_values,
+    office: {
+      name: r.office_name,
+      street: r.office_street,
+      district: r.office_district,
+      city: r.office_city,
+      region: r.office_region,
+      postal_code: r.office_postal_code,
+      country: r.office_country,
+      phone: r.office_phone,
+      email: r.office_email,
+      geo: r.office_geo_lat != null ? { lat: r.office_geo_lat, lng: r.office_geo_lng } : null,
+      opening_hours: r.office_opening_hours,
+      linkedin: r.office_linkedin_url,
+    },
+    claimed_metrics: {
+      fee_earners: r.claimed_fee_earners,
+      practice_areas: r.claimed_practice_areas,
+      clients: r.claimed_clients,
+      _warning: r.claimed_metrics_warning,
+    },
+  };
+});
 
 export const getLawyers = cache(async (): Promise<Lawyer[]> => {
   const { rows } = await pool.query(`
@@ -104,21 +135,19 @@ export const getAwards = cache(async (): Promise<Award[]> => {
 export const getAward = async (slug: string): Promise<Award | undefined> =>
   (await getAwards()).find((a) => a.slug === slug);
 
-// industries and article_categories have no sort_order column in the schema
-// (db/schema.sql) — the curated order data/*.json shipped with is lost once
-// seeded. Ordering alphabetically here is a real, visible consequence of
-// that gap, not a stylistic choice; add sort_order to both tables if the
-// original order matters before this goes further than a local database.
+// sort_order preserves data/*.json's original array order (db/seed.py sets
+// it from array position) rather than falling back to alphabetical, which
+// is what happened here before the column existed.
 export const getIndustries = cache(async (): Promise<Industry[]> => {
   const { rows } = await pool.query(
-    `SELECT slug, name_en, name_id FROM industries ORDER BY name_en`,
+    `SELECT slug, name_en, name_id FROM industries ORDER BY sort_order`,
   );
   return rows as Industry[];
 });
 
 export const getCategories = cache(async (): Promise<InsightCategory[]> => {
   const { rows } = await pool.query(
-    `SELECT slug, name_en, name_id FROM article_categories ORDER BY name_en`,
+    `SELECT slug, name_en, name_id FROM article_categories ORDER BY sort_order`,
   );
   return rows as InsightCategory[];
 });
