@@ -1,5 +1,30 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { CSP_COMMON_SCRIPT_HASHES, CSP_SCRIPT_HASHES } from "./lib/csp-hashes.generated";
+import { verifyToken, COOKIE_NAME } from "./lib/auth";
+
+// Password gate — pre-launch: seluruh situs terkunci di belakang satu
+// password sampai siap dipublikasikan. Path di bawah ini yang boleh diakses
+// tanpa login (halaman login itu sendiri + endpoint auth-nya).
+const GATE_PUBLIC = ["/login", "/api/auth"];
+
+// Fail-closed by design: kalau SESSION_SECRET belum diset di Vercel, situs
+// TETAP terkunci (redirect ke /login) alih-alih otomatis terbuka ke publik.
+// Ini kebalikan dari default template (fail-open) — dipilih karena situs ini
+// memang belum siap publik (lihat commit "not for publication").
+async function gateCheck(request: NextRequest): Promise<NextResponse | null> {
+  const { pathname } = request.nextUrl;
+  if (GATE_PUBLIC.some((p) => pathname.startsWith(p))) return null;
+
+  const secret = process.env.SESSION_SECRET;
+  const token = request.cookies.get(COOKIE_NAME)?.value;
+  const ok = secret ? await verifyToken(secret, token) : false;
+  if (ok) return null;
+
+  const url = request.nextUrl.clone();
+  url.pathname = "/login";
+  url.searchParams.set("next", pathname);
+  return NextResponse.redirect(url);
+}
 
 // Wires config/security-headers.js into the actual running app — that file
 // was Phase 6 spec only until this pass, never applied to a real response.
@@ -49,7 +74,10 @@ import { CSP_COMMON_SCRIPT_HASHES, CSP_SCRIPT_HASHES } from "./lib/csp-hashes.ge
 // for the rest of the machine, not just this app. It still applies to
 // every other host, matching config/security-headers.js's production value.
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
+  const gated = await gateCheck(request);
+  if (gated) return gated;
+
   const isLocalhost = ["localhost", "127.0.0.1"].includes(request.nextUrl.hostname);
   const routeHashes = CSP_SCRIPT_HASHES[request.nextUrl.pathname] ?? CSP_COMMON_SCRIPT_HASHES;
   const scriptHashSources = routeHashes.map((h) => `'${h}'`).join(" ");
