@@ -3,6 +3,7 @@ import { StatusBar } from "../../components/StatusBar";
 import { Breadcrumbs } from "../../components/Breadcrumbs";
 import { CtaBand } from "../../components/CtaBand";
 import { AwardRow } from "../../components/AwardRow";
+import { RecognitionHead } from "../../components/RecognitionCopy";
 import { getAwards } from "../../lib/data";
 
 export const metadata: Metadata = {
@@ -19,9 +20,7 @@ export default async function RecognitionPage() {
         <Breadcrumbs trail={[["Home", "/"], ["Recognition", null]]} />
         <section className="section">
           <div className="wrap pagehead">
-            <p className="docket">Recognition</p>
-            <h1>{AWARDS.length} recognitions, 2022–2026.</h1>
-            <p className="lead">Each entry links to the awarding organisation&rsquo;s published listing.</p>
+            <RecognitionHead count={AWARDS.length} />
           </div>
         </section>
         <section className="section">

@@ -3,6 +3,76 @@
 Read this first when picking this project back up, especially on a different machine.
 Local Claude memory does not sync across machines; this file is the durable artifact.
 
+## 2026-08-24 — "Classical" redesign implemented (branch `redesign/classical`)
+
+A separate design handoff bundle (`ASP Legal Platform redesign.zip`, a Claude Design
+canvas export covering all 9 public marketing screens) was recreated inside this
+codebase, per that bundle's own README ("recreate this design inside the existing
+Next.js app, reusing its components/routing/data — not production code to paste in").
+Not merged to `main` yet — on branch `redesign/classical`, build-verified and
+browser-verified locally (Chrome, both themes, both languages), not yet pushed/deployed.
+
+- **Visual system replaced**: `app/tokens.css`/`app/main.css` now carry the "Classical"
+  palette (warm neutral bg #F3F2F2, gold accent #B68235) and type system (Cormorant
+  Garamond + Lora, replacing Cormorant Garamond + Inter + IBM Plex Mono). The old
+  "docket" mono-register CSS var names (`--font-docket` etc.) are kept as **aliases**
+  pointing at the new serif "kicker" values, specifically so ~20 component/page files
+  didn't need a mechanical class-name rename — same trick used for `--s-*` spacing
+  aliases. `.btn--gold/--primary/--ghost`, `.card--practice/--flagship` class *names*
+  are unchanged; only what they resolve to changed.
+- **Real dark/light theme toggle added** (new: `lib/theme.ts`, `components/ThemeToggle.tsx`)
+  — didn't exist before. `[data-theme="dark"]` block in tokens.css, applied by an inline
+  boot script in `app/layout.tsx` before first paint (no flash). That script's hash lands
+  automatically in `CSP_COMMON_SCRIPT_HASHES` via the existing postbuild step — verified
+  by computing its sha256 by hand and diffing against `lib/csp-hashes.generated.ts`, not
+  assumed.
+- **Real EN/ID toggle added, client-side/static-copy only** (new: `lib/i18n.ts`,
+  `components/LanguageProvider.tsx`/`LanguageToggle.tsx`) — the old EN/ID header links
+  were `href="#"` stubs. Deliberately **not** a `/id` route tree — CLAUDE.md and
+  `next.config.mjs` both guard against adding one before ASP supplies official
+  Indonesian content. `lib/i18n.ts`'s dictionary is copied verbatim from the redesign
+  handoff's own `DICT.en`/`DICT.id` (real deliverable copy, not invented) and covers
+  chrome only — nav, hero, section kickers/titles/intros, CTA, footer, About's "values"
+  cards, Insights' "workflow" cards. Lawyer names, award titles/orgs, and the firm
+  address stay DB-sourced and untranslated (proper nouns/facts, not prose); `Practice`
+  already had `name_en`/`name_id` and now the language toggle actually uses it.
+  Un-dictionaried strings (a couple of pre-existing paragraphs, form field labels,
+  `DISCLAIMER`) stay in English in both language states rather than getting a guessed
+  translation — documented inline where that happens (see `app/about/page.tsx`).
+- **Content decisions** (both flagged, not silent): Home's old hardcoded "PKPU
+  proceeding steps" dark-forest band is dropped (not in the new design); Cases page's
+  labelled `DEMO DATA` table is dropped in favour of the redesign's single empty-state
+  card, which is simpler and *is* exactly production behaviour with zero cleared
+  matters (both were already noindex/labelled placeholders, not real firm data — see
+  `db/content-requests.md` item 6 for the underlying constraint, unchanged).
+  Home/About/People/Practices/Insights/Cases/Recognition/Careers/Contact — the 9
+  screens the prototype covered — got a full section-by-section reskin; the 3 detail
+  page templates (`people/practices/recognition/[slug]`) and 2 utility pages
+  (`consultation`, `styleguide`) weren't in the prototype, so only got the token/CSS
+  system applied to their existing layout, no new structure. `app/styleguide` (the
+  living token reference) had its swatch/contrast-pair/specimen data updated to the
+  new values so it stays accurate.
+- **Assets**: `public/images/` created (didn't exist before) with the two images the
+  handoff actually references — `logo-asp.png` and `founders.png`. The handoff's own
+  README called the founders photo an AI-generated placeholder; the client corrected
+  that in this session — it's the real founders photo, touched up in ChatGPT — so the
+  file was renamed off "…-placeholder.png" and the code comments at both of its use
+  sites (Home hero, People page's group-portrait plate) updated to match.
+- **Verified, not just written**: `npm run typecheck` and `npm run build` (which runs
+  the CSP-hash postbuild step + a second `next build`, per the existing script) both
+  pass. Walked all 9 redesigned screens plus a lawyer detail page in a real Chrome tab
+  via `claude-in-chrome`, logged in through the local password gate
+  (`.env.local`'s `SITE_PASSWORD`) — confirmed: dark mode via system
+  `prefers-color-scheme` on first load with no flash, the Light/Dark toggle switching
+  correctly, the EN/ID toggle switching nav/hero/section copy and DB-sourced
+  `name_id` fields (practice names in the footer, practice group labels) while
+  leaving lawyer names/awards untouched, and dark mode rendering correctly on an
+  inner content page.
+- **Not done this session**: pushing/deploying (still local-only on the feature
+  branch), any content the client hasn't supplied (unchanged, still blocked per the
+  four open decisions), a fresh Lighthouse run, and `middleware.ts`'s CSP
+  enforcement mode (still `Report-Only`, untouched).
+
 ## Where things stand (as of 2026-08-18)
 
 Repo: https://github.com/mahendrasenoaji-lgtm/asp-legal-platform (public)

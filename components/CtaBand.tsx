@@ -1,19 +1,19 @@
+"use client";
+
 import Link from "next/link";
-import { DISCLAIMER } from "../lib/data";
+import { DISCLAIMER } from "../lib/constants";
+import { useLang } from "./LanguageProvider";
 
 export function CtaBand() {
+  const { t } = useLang();
   return (
     <section className="section cta-band">
       <div className="wrap grid grid--aside">
         <div>
-          <p className="docket">Legal intake</p>
-          <h2>Tell us about the matter.</h2>
-          <p>
-            Insolvency moves on statutory clocks. If a petition has been filed against you, or
-            you are weighing one, the earlier the assessment the wider the options.
-          </p>
+          <h2>{t.cta.title}</h2>
+          <p>{t.cta.sub}</p>
           <Link className="btn btn--gold" href="/consultation">
-            Discuss your matter <span aria-hidden="true">&rarr;</span>
+            {t.cta.button} <span aria-hidden="true">&rarr;</span>
           </Link>
         </div>
         <div className="disclaimer">

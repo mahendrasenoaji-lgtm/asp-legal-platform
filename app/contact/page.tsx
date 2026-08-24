@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { StatusBar } from "../../components/StatusBar";
 import { Breadcrumbs } from "../../components/Breadcrumbs";
 import { EmptyState } from "../../components/EmptyState";
+import { ContactCta, ContactHead } from "../../components/ContactCopy";
 import { getFirm } from "../../lib/data";
 
 export const metadata: Metadata = {
@@ -20,8 +21,7 @@ export default async function ContactPage() {
         <section className="section">
           <div className="wrap grid grid--aside">
             <div>
-              <p className="docket">Contact</p>
-              <h1>Jakarta office.</h1>
+              <ContactHead />
               <dl className="facts" style={{ marginTop: "var(--s-6)" }}>
                 <div>
                   <dt>Address</dt>
@@ -60,9 +60,7 @@ export default async function ContactPage() {
                   <dd className="muted">Awaiting ASP</dd>
                 </div>
               </dl>
-              <a className="btn btn--primary" href="/consultation" style={{ marginTop: "var(--s-6)" }}>
-                Request a consultation
-              </a>
+              <ContactCta />
             </div>
             <aside>
               <EmptyState
