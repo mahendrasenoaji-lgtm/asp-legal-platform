@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { NAV, NAV_I18N_KEYS } from "../lib/constants";
@@ -15,7 +16,7 @@ export function Header() {
     <header className="header">
       <div className="wrap header__inner">
         <Link className="header__brand" href="/">
-          <img src="/images/logo-asp.png" alt="Arifudin Susanto Partnership" />
+          <Image src="/images/logo-asp.png" alt="Arifudin Susanto Partnership" width={89} height={34} />
           <small>Est. 2017</small>
         </Link>
         <nav className="nav" aria-label="Primary">

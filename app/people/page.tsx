@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { StatusBar } from "../../components/StatusBar";
 import { Breadcrumbs } from "../../components/Breadcrumbs";
 import { CtaBand } from "../../components/CtaBand";
@@ -38,7 +39,7 @@ export default async function PeoplePage() {
                 still don't exist (t.people.note already discloses that
                 above). */}
             <figure className="plate" style={{ maxWidth: 420, marginTop: "var(--s-6)" }}>
-              <img src="/images/founders.png" alt="" />
+              <Image src="/images/founders.jpg" alt="" width={1023} height={1537} style={{ width: "100%", height: "auto" }} />
             </figure>
           </div>
         </section>

@@ -30,7 +30,13 @@
   --bg:                var(--asp-bg);
   --bg-raised:          var(--asp-surface);
   --fg:                 var(--asp-text);
-  --fg-muted:           color-mix(in srgb, var(--asp-text) 55%, transparent);
+  /* A 55% color-mix here (the handoff prototype's own value) measures
+     3.63:1 against --bg — fails WCAG AA (4.5:1) for the small text it's
+     used on (kickers, statcard labels, inactive toggle state). #5B5F62 is
+     the old Phase 2 system's already-verified ink-muted value and clears
+     5.77:1; reused here rather than re-deriving a new one. Found by a real
+     Lighthouse run post-redesign (color-contrast audit), not assumed. */
+  --fg-muted:           #5B5F62;
   --rule:               var(--asp-divider);
   --accent:             #B68235;
   --accent-2:           #AC803E;

@@ -128,7 +128,10 @@ p  { margin: 0 0 var(--s-4); max-width: var(--measure); }
 .btn:active { transform: translateY(0); }
 .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
 
-.btn--gold { background: var(--accent); color: var(--asp-neutral-900); border-color: var(--accent); }
+/* color: var(--asp-text), not --asp-neutral-900 — neutral-900 on --accent
+   measures 4.18:1, just under WCAG AA's 4.5:1 for this button's text size.
+   Found by a real Lighthouse run, not assumed; --asp-text clears 4.89:1. */
+.btn--gold { background: var(--accent); color: var(--asp-text); border-color: var(--accent); }
 .btn--gold:hover { background: var(--asp-accent-300); border-color: var(--asp-accent-300); }
 
 .btn--primary { border-color: var(--accent); color: var(--accent-text); }
@@ -148,7 +151,7 @@ p  { margin: 0 0 var(--s-4); max-width: var(--measure); }
 .link-arrow {
   display: inline-flex; align-items: center; gap: var(--s-2);
   font-size: var(--t-small); font-weight: 500; text-decoration: none;
-  color: var(--accent-text); padding-block: var(--s-1);
+  color: var(--accent-text); padding-block: var(--s-2); /* WCAG 2.5.8 24px target */
 }
 .link-arrow span { transition: transform var(--dur-base) var(--ease-out); }
 .link-arrow:hover span { transform: translateX(4px); }
@@ -189,7 +192,11 @@ p  { margin: 0 0 var(--s-4); max-width: var(--measure); }
 .nav { display: flex; align-items: center; gap: var(--s-6); }
 .nav a {
   font-family: var(--font-display); font-weight: 600; font-size: var(--t-small);
-  text-decoration: none; padding-bottom: 3px;
+  text-decoration: none; padding: 8px 0 3px;
+  /* padding-top exists purely to clear WCAG 2.2's 24px touch-target
+     minimum — a real Lighthouse run flagged nav links at ~21px tall with
+     only padding-bottom. Kept asymmetric (bottom stays 3px) so the
+     underline still sits tight under the text. */
   border-bottom: var(--hairline) solid transparent;
   transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
 }
@@ -503,7 +510,7 @@ a.tag-outline:hover { background: color-mix(in srgb, var(--accent) 10%, transpar
 /* ---- Footer -------------------------------------------------------------- */
 
 .footer { background: var(--bg); color: var(--fg); padding-block: var(--s-8) var(--s-6); }
-.footer a { text-decoration: none; color: var(--fg-muted); font-size: var(--t-small); }
+.footer a { text-decoration: none; color: var(--fg-muted); font-size: var(--t-small); display: inline-block; padding-block: 4px; } /* WCAG 2.5.8 24px target */
 .footer a:hover { color: var(--accent-text); }
 .footer__grid { display: grid; grid-template-columns: 1.4fr repeat(3, 1fr); gap: var(--s-6); }
 /* Footer column labels are visual grouping, not part of the page's heading

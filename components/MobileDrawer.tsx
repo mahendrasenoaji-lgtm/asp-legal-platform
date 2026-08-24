@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { NAV, NAV_I18N_KEYS } from "../lib/constants";
@@ -67,7 +68,7 @@ export function MobileDrawer() {
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span className="header__brand">
-            <img src="/images/logo-asp.png" alt="Arifudin Susanto Partnership" />
+            <Image src="/images/logo-asp.png" alt="Arifudin Susanto Partnership" width={89} height={34} />
           </span>
         </div>
         <ul className="drawer__list">

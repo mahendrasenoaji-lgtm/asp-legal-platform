@@ -3,6 +3,73 @@
 Read this first when picking this project back up, especially on a different machine.
 Local Claude memory does not sync across machines; this file is the durable artifact.
 
+## 2026-08-24 (later same day) — redesign merged, deployed, and a post-deploy Lighthouse pass
+
+The redesign below (see the entry right under this one) was merged to `main` and pushed
+— live at https://asp-legal-platform.vercel.app. Push initially failed
+(`RPC failed; HTTP 400`, `send-pack: unexpected disconnect`) on the ~2MB image commit;
+fixed with `git config http.postBuffer 524288000`, not a real server-side problem.
+
+Client corrected an assumption from the redesign entry below: the Home/People hero
+photo is the **real** founders photo (touched up in ChatGPT), not an AI-generated
+placeholder as the handoff's own README implied. Renamed
+`public/images/hero-founders-placeholder.png` → `founders.png`, updated the two code
+comments that had it wrong.
+
+Then ran a real Lighthouse pass post-redesign (`npm run build && npm run start`, logged
+in via `/api/auth/login` for a session cookie, `npx lighthouse` with that cookie in
+`--extra-headers`, 3 consecutive runs per docs/07-qa.md's own pattern) — found and fixed
+two real regressions the redesign introduced, both verified by computing the actual WCAG
+contrast ratio by hand (relative-luminance formula), not just trusting the Lighthouse
+score:
+
+- `--fg-muted` (kickers, statcard labels, header's "Est. 2017", inactive toggle text) was
+  a `color-mix(... 55%, transparent)` — measured 3.63:1 against `--bg`, fails AA's 4.5:1
+  for that small text. Fixed by reusing the old Phase 2 system's already-verified
+  `#5B5F62` (5.77:1) as a solid value instead.
+- `.btn--gold`'s text colour (`--asp-neutral-900` on `--accent`) measured 4.18:1, just
+  under 4.5:1. Fixed by switching to `--asp-text` (4.89:1); happens to also clear the
+  dark-theme/on-photo gold variant (8.13:1) since `--asp-text` is a fixed dark colour.
+
+Also found the 1.8MB `founders.png` (served via a plain `<img>`, no `next/image`
+anywhere in this app before now) was dragging the homepage's Lighthouse Performance
+score as low as 57 in one run. Fixed two ways: converted the source to a compressed JPEG
+(1.8MB → 247KB, `sips -s format jpeg -s formatOptions 82`) and switched it plus the nav
+logo to `next/image` (`fill`+`priority` for the hero since it's the LCP element, explicit
+`width`/`height` for the logo and the People-page plate) — this is the first use of
+`next/image` in the app. Performance runs after: 86–99 across repeated local passes
+(noisy — see below — but frequently matching/exceeding the pre-redesign 91 baseline).
+
+**A real debugging lesson, not just a fix**: partway through, a `.person` PersonCard
+link measured at 18px tall in a Lighthouse `target-size` finding (WCAG 2.5.8), which led
+to CSS padding fixes on `.nav a`/`.link-arrow`/`.footer a` too. Investigated with the
+`claude-in-chrome` MCP tools directly against a running tab — `.person`'s *actual*
+rendered height was 427px; the 18px reading was a stale `next-server` process serving
+HTML that referenced a CSS bundle hash from a build already overwritten on disk
+(`pkill -f "next start"` doesn't reliably kill the detached `next-server` child — use
+`pkill -9 -f "next-server"`). Confirmed via `curl` that the referenced
+`_next/static/css/*.css` was 400ing. A clean rebuild+restart then scored **Accessibility
+100** with zero `target-size` findings. The `.nav a`/`.link-arrow`/`.footer a` padding
+increases were kept anyway — real, if smaller, touch-target headroom the redesign had
+reduced (nav especially: old `padding: var(--s-2) 0` → new `padding-bottom: 3px` only —
+a genuine reduction even though it happened to still clear 24px) — but they were not,
+in the end, fixing the finding that surfaced them.
+
+**Performance is still noisy locally** (72–99 across otherwise-identical runs) — Total
+Blocking Time is the volatile metric, consistent with CPU contention from this being a
+dev machine running several concurrent tool sessions during the test, not a code issue
+(CLS was a perfect 0 in every run; Speed Index/FCP were consistently good). Production's
+`SITE_PASSWORD`/`SESSION_SECRET` are marked **Sensitive** in Vercel (`vercel env pull`
+returns `[SENSITIVE]`, by design, not retrievable via CLI) so a same-session pass against
+the live URL wasn't possible — **worth a clean Lighthouse run against
+https://asp-legal-platform.vercel.app on a quiet machine** to get a trustworthy number,
+next time this is picked up.
+
+Not done this pass: `best-practices` (92) and `seo` (58, expected pre-launch/noindex)
+weren't investigated — only performance and accessibility were the client's stated
+priority. Pages other than the homepage got one Lighthouse pass each (`/practices`,
+a lawyer detail page, `/contact`) to spot-check, not the full 3-run treatment.
+
 ## 2026-08-24 — "Classical" redesign implemented (branch `redesign/classical`)
 
 A separate design handoff bundle (`ASP Legal Platform redesign.zip`, a Claude Design

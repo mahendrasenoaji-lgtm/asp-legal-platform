@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { StatusBar } from "../components/StatusBar";
 import { Reveal } from "../components/Reveal";
@@ -40,8 +41,21 @@ export default async function HomePage() {
         <section className="hero">
           {/* Real photo of the firm's founders (touched up in ChatGPT, per
               the client), from the redesign handoff. Decorative here — the
-              heading carries the meaning, hence alt="". */}
-          <img className="hero__img" src="/images/founders.png" alt="" />
+              heading carries the meaning, hence alt="". next/image (fill +
+              priority) instead of a plain <img>: the source file alone was
+              1.8MB PNG and, served unoptimized, took the homepage's
+              Lighthouse performance score from 91 to as low as 57 in a
+              real post-redesign run — this is the fix, not a stylistic
+              choice. Next re-encodes to AVIF/WebP and serves it sized to
+              the viewport automatically. */}
+          <Image
+            className="hero__img"
+            src="/images/founders.jpg"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+          />
           <div className="hero__scrim" aria-hidden="true" />
           <div className="wrap hero__inner">
             <HomeCopy />
