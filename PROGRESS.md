@@ -3,6 +3,59 @@
 Read this first when picking this project back up, especially on a different machine.
 Local Claude memory does not sync across machines; this file is the durable artifact.
 
+## 2026-08-24 (even later same day) — hero text/photo clash, and the real bug it exposed
+
+Client screenshotted the live Home hero: the headline sat directly over a face, hard to
+read. Two real things came out of chasing this:
+
+1. **The photo can't be "shifted"** — `founders.jpg` is portrait (1023×1537) inside a
+   wide/short hero box, so `object-fit: cover` always scales to match the container's
+   *width* exactly (portrait source is narrower than the landscape box, relatively) —
+   there is no horizontal crop happening at all, the full source width is always shown,
+   and `object-position`'s horizontal component is a no-op here. Only the vertical
+   crop-window can move. Fixed the actual complaint with `.hero__scrim`: added a
+   left-to-right gradient layer (text sits left, so darken left, fade out by ~90%
+   width) stacked under the existing top/bottom vertical gradient, plus a `text-shadow`
+   on the hero kicker/h1/sub as a second line of defence. First attempt overcorrected
+   and hid the photo entirely (opacity too high, fade too far right) — dialled back
+   until the right-hand figure reads clearly and the left-hand one (under the text) is
+   legibly darkened rather than gone. See `app/main.css`'s `.hero__scrim` comment for
+   the exact reasoning, not just the values.
+
+2. **While checking this in a real browser, found the hero photo (and the nav logo)
+   were completely broken** — `naturalWidth: 0`, silently rendering as nothing, which
+   is *why* the first "hide it more" gradient attempt looked like it worked (there was
+   no photo to darken either way). Root cause, found by reading `next-server`'s own
+   logs (`⨯ The requested resource isn't a valid image ... received null`) and
+   confirming with a direct `curl` against an image URL while unauthenticated: **the
+   password-gate middleware was gating `/images/*`**, and `next/image`'s server-side
+   optimizer fetches its source via an internal request that carries no browser
+   session cookie — that request was getting 307'd to `/login`, so Next received HTML
+   instead of image bytes. This is only surfaced now because this app had no
+   `next/image` usage (or any `public/` assets at all) before the redesign added them.
+   Fixed by excluding `images/` in `middleware.ts`'s `config.matcher` (same negative
+   lookahead that already excludes `_next/static`/`_next/image`), so the gate never
+   runs on that path at all — not by adding it to `GATE_PUBLIC`, which would still let
+   `gateCheck()` execute per-request for no reason. Also installed `sharp`
+   (`npm i sharp`) as a devDependency, since it *was* genuinely missing and is what
+   Next's built-in image optimizer needs for self-hosted (`next start`) runs — Vercel's
+   platform normally provides this itself, but not having it locally made this bug
+   much harder to isolate from the middleware issue while debugging, and it's the
+   correct fix either way, per Next's own guidance.
+
+Verified post-fix: `naturalWidth`/`naturalHeight` on both images now report real
+dimensions (checked via `claude-in-chrome`'s `javascript_tool` against a live tab, not
+assumed from a screenshot), unauthenticated `curl` to `/images/founders.jpg` returns
+200 (was 307), server log has zero image errors on a fresh build, and a repeat
+Lighthouse pass held Accessibility 100 with Performance in the same 72–90 range as
+before (this fix didn't change page weight, only whether the image loads at all).
+
+**Process note for next time**: after switching to `next/image` for the earlier
+Lighthouse-driven fix, a Lighthouse *score* improvement was trusted as confirmation
+without a visual screenshot check — an image that fails to load entirely can still
+score well (nothing large to download), which is exactly what happened. Score deltas
+aren't sufficient evidence something visual actually renders; check the rendered page.
+
 ## 2026-08-24 (later same day) — redesign merged, deployed, and a post-deploy Lighthouse pass
 
 The redesign below (see the entry right under this one) was merged to `main` and pushed

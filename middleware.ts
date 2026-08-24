@@ -123,8 +123,17 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Everything except Next's static assets and image optimizer — those
-    // are immutable/cached and don't need a per-route CSP computed.
-    "/((?!_next/static|_next/image|favicon.ico).*)",
+    // Everything except Next's static assets/image optimizer and
+    // public/images/* — those are immutable/cached and don't need a
+    // per-route CSP computed. images/ has to be excluded here (not just
+    // handled as a GATE_PUBLIC path below) because next/image's server-side
+    // optimizer fetches the source file via its own internal request,
+    // which carries no browser session cookie — if the gate ran on that
+    // request it would 307 it to /login and next/image would receive HTML
+    // instead of image bytes, failing with "isn't a valid image". Found by
+    // a real broken hero photo in production, not a hypothetical: the
+    // matcher's negative lookahead is the only place that actually stops
+    // middleware from running on the request at all.
+    "/((?!_next/static|_next/image|images/|favicon.ico).*)",
   ],
 };

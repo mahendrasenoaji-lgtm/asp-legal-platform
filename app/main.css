@@ -275,18 +275,44 @@ p  { margin: 0 0 var(--s-4); max-width: var(--measure); }
 }
 .hero__scrim {
   position: absolute; inset: 0; z-index: -1;
-  background: linear-gradient(180deg,
-    rgba(32, 31, 29, 0.72) 0%,
-    rgba(32, 31, 29, 0.35) 42%,
-    rgba(32, 31, 29, 0.92) 100%);
+  /* Two layers: a left-to-right gradient carries most of the
+     text-legibility job (the source photo is portrait, so
+     object-fit:cover always fills the hero's full width with no
+     horizontal cropping — the two subjects sit dead centre, edge to
+     edge, and can't be shifted out from under the text via
+     object-position alone), stacked under a lighter top/bottom vertical
+     gradient for the header/statcard seams. Tuned to darken enough for
+     the text (backed up by a text-shadow below, belt-and-suspenders)
+     without erasing the photo entirely — found by the client
+     screenshotting real overlap between the headline and a face, not a
+     hypothetical; first pass over-corrected and hid the photo outright. */
+  background:
+    linear-gradient(100deg,
+      rgba(20, 19, 18, 0.78) 0%,
+      rgba(20, 19, 18, 0.62) 35%,
+      rgba(20, 19, 18, 0.32) 58%,
+      rgba(20, 19, 18, 0.08) 78%,
+      transparent 92%),
+    linear-gradient(180deg,
+      rgba(32, 31, 29, 0.45) 0%,
+      rgba(32, 31, 29, 0.15) 30%,
+      rgba(32, 31, 29, 0.8) 100%);
 }
 .hero__inner { position: relative; z-index: 1; }
-.hero .docket { color: var(--asp-accent-300); }
+/* Backs up .hero__scrim for legibility wherever the photo underneath is
+   locally brighter than the gradient alone accounts for (a face, a light
+   shirt collar) — standard belt-and-suspenders for text over a photo. */
+.hero .docket { color: var(--asp-accent-300); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7); }
 .hero h1 {
   font-size: var(--t-display); font-weight: 400; line-height: var(--lh-tight);
   margin-bottom: var(--s-5); max-width: 16ch; color: var(--asp-neutral-100);
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.55), 0 1px 4px rgba(0, 0, 0, 0.75);
 }
-.hero__sub { max-width: 52ch; font-size: var(--t-lead); line-height: var(--lh-lead); color: color-mix(in srgb, var(--asp-neutral-100) 86%, transparent); }
+.hero__sub {
+  max-width: 52ch; font-size: var(--t-lead); line-height: var(--lh-lead);
+  color: color-mix(in srgb, var(--asp-neutral-100) 86%, transparent);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+}
 .hero__cta { display: flex; gap: var(--s-4); flex-wrap: wrap; margin-top: var(--s-7); }
 
 /* Staged entrance: eyebrow, then each line of the headline. */
