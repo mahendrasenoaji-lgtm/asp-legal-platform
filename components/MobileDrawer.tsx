@@ -2,7 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { NAV } from "../lib/constants";
+import { NAV, NAV_I18N_KEYS } from "../lib/constants";
+import { useLang } from "./LanguageProvider";
+import { LanguageToggle } from "./LanguageToggle";
+import { ThemeToggle } from "./ThemeToggle";
 
 // Ports the drawer behaviour from prototype/assets/app.js: focus capture on
 // open, focus return on close, Escape to close, body scroll lock.
@@ -11,6 +14,7 @@ export function MobileDrawer() {
   const drawerRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const lastFocus = useRef<HTMLElement | null>(null);
+  const { t } = useLang();
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -30,6 +34,8 @@ export function MobileDrawer() {
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [open]);
+
+  const trapIndex = open ? undefined : -1;
 
   return (
     <>
@@ -60,19 +66,21 @@ export function MobileDrawer() {
         aria-hidden={!open}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span className="header__brand">ASP</span>
+          <span className="header__brand">
+            <img src="/images/logo-asp.png" alt="Arifudin Susanto Partnership" />
+          </span>
         </div>
         <ul className="drawer__list">
           {NAV.map(([label, href]) => (
             <li key={href}>
-              <Link href={href} tabIndex={open ? undefined : -1} onClick={() => setOpen(false)}>
-                {label}
+              <Link href={href} tabIndex={trapIndex} onClick={() => setOpen(false)}>
+                {t.nav[NAV_I18N_KEYS[href]] ?? label}
               </Link>
             </li>
           ))}
           <li>
-            <Link href="/contact" tabIndex={open ? undefined : -1} onClick={() => setOpen(false)}>
-              Contact
+            <Link href="/contact" tabIndex={trapIndex} onClick={() => setOpen(false)}>
+              {t.nav.contact}
             </Link>
           </li>
         </ul>
@@ -80,17 +88,13 @@ export function MobileDrawer() {
           <Link
             className="btn btn--gold"
             href="/consultation"
-            tabIndex={open ? undefined : -1}
+            tabIndex={trapIndex}
             onClick={() => setOpen(false)}
           >
-            Discuss your matter
+            {t.nav.cta}
           </Link>
-          <span className="lang">
-            <a href="#" aria-current="true" tabIndex={open ? undefined : -1}>
-              English
-            </a>{" "}
-            / <a href="#" tabIndex={open ? undefined : -1}>Bahasa Indonesia</a>
-          </span>
+          <ThemeToggle tabIndex={trapIndex} />
+          <LanguageToggle tabIndex={trapIndex} />
         </div>
       </div>
     </>

@@ -1,85 +1,34 @@
 import type { Metadata } from "next";
 import { StatusBar } from "../../components/StatusBar";
 import { Breadcrumbs } from "../../components/Breadcrumbs";
-import { EmptyState } from "../../components/EmptyState";
 import { CtaBand } from "../../components/CtaBand";
+import { CasesEmpty, CasesHead } from "../../components/CasesCopy";
 
 export const metadata: Metadata = {
   title: "Case intelligence",
   description: "Public-record matters handled by ASP.",
 };
 
-// Labelled demo rows only — structural placeholders, not ASP matters. See
-// docs/content-requests.md item 6: default is to publish nothing until ASP
-// clears specific matters that are already on the public record.
-const DEMO: [string, string, number, string, string, string][] = [
-  ["PKPU", "Commercial Court Jakarta", 2026, "Manufacturing", "Administrator", "Completed"],
-  ["Bankruptcy", "Commercial Court Surabaya", 2025, "Shipping", "Counsel to creditor", "Completed"],
-  ["Bankruptcy", "Commercial Court Jakarta", 2025, "Property", "Receiver", "Ongoing"],
-];
-
+// Redesign handoff's Cases screen renders no demo/placeholder rows at all —
+// just the register's real empty state — so the previous DEMO DATA table
+// (structural placeholders only, per docs/content-requests.md item 6) is
+// dropped here in favour of matching that: this is exactly how the page
+// behaves in production once ASP has cleared zero matters, which is also
+// exactly its current state.
 export default function CasesPage() {
   return (
     <>
-      <StatusBar note="This page carries labelled demo rows" />
+      <StatusBar note="Empty by design — no matters cleared for publication yet" />
       <main id="main">
         <Breadcrumbs trail={[["Home", "/"], ["Cases", null]]} />
         <section className="section">
           <div className="wrap pagehead">
-            <p className="docket">Case intelligence</p>
-            <h1>Selected matters on the public record.</h1>
-            <p className="lead">
-              A filterable register of matters that are already public and cleared for
-              publication by the firm.
-            </p>
-            <p>
-              <span className="demo-flag">Demo data</span>
-            </p>
+            <CasesHead />
           </div>
         </section>
         <section className="section">
           <div className="wrap">
-            <div className="disclaimer" style={{ marginBottom: "var(--s-6)" }}>
-              <p>
-                The three rows below are structural placeholders showing how the register renders.
-                They are not ASP matters. No party is named, and nothing here is drawn from a
-                client file. The register stays empty in production until ASP supplies matters
-                that are on the public record and clears each one.
-              </p>
-            </div>
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Type</th>
-                  <th>Court</th>
-                  <th>Year</th>
-                  <th>Industry</th>
-                  <th>Role</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {DEMO.map((d, i) => (
-                  <tr key={i}>
-                    <td data-label="Type">{d[0]}</td>
-                    <td data-label="Court">{d[1]}</td>
-                    <td data-label="Year" className="num">
-                      {d[2]}
-                    </td>
-                    <td data-label="Industry">{d[3]}</td>
-                    <td data-label="Role">{d[4]}</td>
-                    <td data-label="Status">{d[5]}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div style={{ marginTop: "var(--s-7)" }}>
-              <EmptyState
-                heading="Production state"
-                body="With no cleared matters, this page renders the filters, an explanation of what the register is for, and a route to the intake form. It does not render placeholder rows."
-                tag="How this behaves at launch"
-              />
-            </div>
+            <CasesEmpty />
           </div>
         </section>
         <CtaBand />

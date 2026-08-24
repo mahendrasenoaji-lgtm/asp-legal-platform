@@ -1,10 +1,11 @@
 import type { Config } from "tailwindcss";
 
-// Maps the Phase 2 design tokens (app/tokens.css) into Tailwind so utilities
-// and the custom properties agree instead of competing, per docs/03-frontend.md §4.
-// Component styling itself still lives in app/main.css (ported unchanged from
-// the Phase 2/3 prototype, already measured for contrast) — Tailwind here is
+// Maps the design tokens (app/tokens.css) into Tailwind so utilities and the
+// custom properties agree instead of competing, per docs/03-frontend.md §4.
+// Component styling itself still lives in app/main.css — Tailwind here is
 // for any new layout utility a component needs rather than a full rewrite.
+// Updated 2026-08-24 for the "Classical" redesign's token names; kept the
+// same alias-to-CSS-var structure so nothing else has to change.
 const config: Config = {
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
   corePlugins: {
@@ -15,13 +16,14 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        charcoal: "var(--asp-charcoal)",
-        forest: "var(--asp-forest)",
-        gold: "var(--asp-gold)",
-        "gold-deep": "var(--asp-gold-deep)",
-        ivory: "var(--asp-ivory)",
-        ink: "var(--asp-ink)",
-        "ink-muted": "var(--asp-ink-muted)",
+        bg: "var(--bg)",
+        "bg-raised": "var(--bg-raised)",
+        fg: "var(--fg)",
+        "fg-muted": "var(--fg-muted)",
+        accent: "var(--accent)",
+        "accent-text": "var(--accent-text)",
+        kicker: "var(--kicker)",
+        rule: "var(--rule)",
       },
       fontFamily: {
         display: ["var(--font-display)"],

@@ -5,189 +5,123 @@ import { EmptyState } from "../components/EmptyState";
 import { CtaBand } from "../components/CtaBand";
 import { PersonCard } from "../components/PersonCard";
 import { AwardRow } from "../components/AwardRow";
-import { PracticeCard } from "../components/PracticeCard";
-import { getAwards, getFirm, getLawyers, getPractices } from "../lib/data";
+import {
+  HomeAboutBody,
+  HomeAboutHead,
+  HomeContactStrip,
+  HomeCopy,
+  HomeGroupLabel,
+  HomeInsightsTeaser,
+  HomePracticesHead,
+  HomeStatLabel,
+} from "../components/HomeCopy";
+import { getAwards, getCategories, getFirm, getLawyers, getPractices } from "../lib/data";
 
-const STEPS: [string, string, string, "statutory" | "key"][] = [
-  ["Filing", "Petition lodged", "Commercial Court registers the petition and sets the first hearing.", "statutory"],
-  ["Day 20", "PKPU granted", "Court must rule within 20 days. Sementara runs 45 days from the ruling.", "statutory"],
-  ["Day 45", "Claims verified", "Administrator verifies claims; the debtor tables a composition plan.", "key"],
-  ["Day 45+", "Creditors vote", "Approval needs the statutory majorities of both secured and unsecured classes.", "key"],
-  ["Day 270", "Outer limit", "PKPU Tetap cannot exceed 270 days from the sementara ruling.", "statutory"],
-  ["Outcome", "Homologasi or bankruptcy", "Ratification binds all creditors. Rejection converts the matter to bankruptcy.", "key"],
-];
+const GROUP_ORDER: Array<"flagship" | "dispute" | "corporate"> = ["flagship", "dispute", "corporate"];
 
 export default async function HomePage() {
-  const [LAWYERS, PRACTICES, AWARDS, FIRM] = await Promise.all([
+  const [LAWYERS, PRACTICES, AWARDS, FIRM, CATEGORIES] = await Promise.all([
     getLawyers(),
     getPractices(),
     getAwards(),
     getFirm(),
+    getCategories(),
   ]);
-  const m = FIRM.claimed_metrics;
-  const flagship = PRACTICES.filter((p) => p.tier === "flagship");
-  const others = PRACTICES.filter((p) => p.tier !== "flagship");
+  const foundedYear = new Date(FIRM.founded).getUTCFullYear();
+  const groups = GROUP_ORDER.map((tier) => ({
+    tier,
+    items: PRACTICES.filter((p) => p.tier === tier),
+  })).filter((g) => g.items.length > 0);
 
   return (
     <>
-      <StatusBar note="Metrics shown as claimed by ASP; one is flagged" />
+      <StatusBar note="Redesign build — Classical direction, not yet client-approved" />
       <main id="main">
         <section className="hero">
+          {/* Real photo of the firm's founders (touched up in ChatGPT, per
+              the client), from the redesign handoff. Decorative here — the
+              heading carries the meaning, hence alt="". */}
+          <img className="hero__img" src="/images/founders.png" alt="" />
+          <div className="hero__scrim" aria-hidden="true" />
           <div className="wrap hero__inner">
-            <p className="docket reveal">Jakarta · Commercial Court practice</p>
-            <h1 className="reveal">
-              Strategic counsel.
-              <br />
-              Complex matters.
-              <em>Trusted outcomes.</em>
-            </h1>
-            <p className="hero__sub reveal">
-              Arifudin Susanto Partnership advises on bankruptcy, PKPU, debt restructuring,
-              litigation, arbitration and complex commercial matters in Indonesia — as counsel to
-              debtors and creditors, and as court-appointed receiver.
-            </p>
-            <div className="hero__cta reveal">
-              <Link className="btn btn--gold" href="/practices">
-                Explore our practices <span aria-hidden="true">&rarr;</span>
-              </Link>
-              <Link className="btn btn--ghost" href="/consultation">
-                Discuss your matter
-              </Link>
-            </div>
+            <HomeCopy />
           </div>
         </section>
 
-        <section className="trustbar">
-          <div className="wrap trustbar__grid">
-            <div className="trustbar__item">
-              <span className="trustbar__num">{m.practice_areas}</span>
-              <span className="trustbar__label">Practice areas</span>
+        <div className="wrap">
+          <div className="statcard">
+            <div className="statcard__item">
+              <span className="statcard__num">{foundedYear}</span>
+              <HomeStatLabel k="founded" />
             </div>
-            <div className="trustbar__item">
-              <span className="trustbar__num">{m.fee_earners}</span>
-              <span className="trustbar__label">
-                Fee earners <sup style={{ color: "var(--accent-text)" }}>*</sup>
-              </span>
+            <div className="statcard__item">
+              <span className="statcard__num">{LAWYERS.length}</span>
+              <HomeStatLabel k="people" />
             </div>
-            <div className="trustbar__item">
-              <span className="trustbar__num">{m.clients}</span>
-              <span className="trustbar__label">Clients served</span>
+            <div className="statcard__item">
+              <span className="statcard__num">{PRACTICES.length}</span>
+              <HomeStatLabel k="practiceAreas" />
             </div>
-            <div className="trustbar__item">
-              <span className="trustbar__num">2017</span>
-              <span className="trustbar__label">Established</span>
+            <div className="statcard__item">
+              <span className="statcard__num">{AWARDS.length}</span>
+              <HomeStatLabel k="recognitions" />
             </div>
           </div>
-          <div className="wrap">
-            <p
-              style={{
-                fontSize: "var(--t-caption)",
-                color: "var(--fg-muted)",
-                paddingBottom: "var(--s-5)",
-              }}
-            >
-              <span style={{ color: "var(--accent-text)" }}>*</span> Unverified: the People page
-              currently lists {LAWYERS.length} professionals. Reconcile before launch — see
-              docs/content-requests.md, item 2.
-            </p>
-          </div>
-        </section>
+        </div>
 
-        <section className="section">
-          <div className="wrap grid grid--editorial">
-            <Reveal>
-              <p className="docket">The firm</p>
-              <h2>Built for complex matters.</h2>
-            </Reveal>
-            <Reveal>
-              <p className="lead">
-                ASP was founded on 3 May 2017 by Muhamad Arifudin and Herlin Susanto to handle
-                insolvency work that most firms treat as an occasional file.
-              </p>
-              <p>
-                The firm acts in bankruptcy and PKPU proceedings in three distinct capacities —
-                court-appointed receiver, administrator, and counsel to debtors or creditors —
-                across manufacturing, aviation, shipping, oil and gas, plantations, property,
-                cooperatives and state-owned enterprises.
-              </p>
-              <p>Its work is guided by three stated values: visionary, integrity, professional.</p>
-              <Link className="link-arrow" href="/about">
-                Discover ASP <span aria-hidden="true">&rarr;</span>
-              </Link>
-            </Reveal>
-          </div>
-        </section>
+        <div className="wrap"><hr className="hr" /></div>
 
-        <section className="section">
+        <section className="section section--tight">
           <div className="wrap">
             <Reveal as="div" className="section-head section-head__row">
-              <div>
-                <p className="docket">Our practices</p>
-                <h2>Twelve practices, one centre of gravity.</h2>
-              </div>
-              <Link className="link-arrow" href="/practices">
-                All practices <span aria-hidden="true">&rarr;</span>
-              </Link>
+              <HomePracticesHead />
             </Reveal>
             <div className="grid grid--3">
-              {[...flagship, ...others].map((p) => (
-                <PracticeCard key={p.slug} practice={p} />
+              {groups.map((g) => (
+                <div key={g.tier}>
+                  <HomeGroupLabel tier={g.tier} />
+                  {g.items.map((p) => (
+                    <p
+                      key={p.slug}
+                      style={{
+                        borderTop: "var(--hairline) solid var(--rule)",
+                        paddingTop: "var(--s-3)",
+                        marginBottom: "var(--s-3)",
+                      }}
+                    >
+                      {p.name_en}
+                    </p>
+                  ))}
+                </div>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="section section--forest">
-          <div className="wrap">
-            <Reveal as="div" className="section-head">
-              <p className="docket">Featured practice</p>
-              <h2>Bankruptcy, PKPU &amp; restructuring.</h2>
-              <p className="lead">
-                A PKPU runs on a statutory clock. Every option narrows as the days pass, which is
-                why the first week matters more than the last.
-              </p>
+        <div className="wrap"><hr className="hr" /></div>
+
+        <section className="section section--tight">
+          <div className="wrap grid grid--editorial">
+            <Reveal>
+              <HomeAboutHead />
             </Reveal>
-            <Reveal as="div" className="proceeding">
-              <div className="proceeding__track">
-                {STEPS.map((s) => (
-                  <div className="proceeding__step" data-state={s[3]} key={s[0]}>
-                    <span className="proceeding__day">{s[0]}</span>
-                    <span className="proceeding__label">{s[1]}</span>
-                    <p className="proceeding__note">{s[2]}</p>
-                  </div>
-                ))}
-              </div>
-              <p className="muted" style={{ fontSize: "var(--t-caption)", marginTop: "var(--s-5)" }}>
-                Periods reflect the statutory framework of Law No. 37 of 2004 on Bankruptcy and
-                Suspension of Debt Payment Obligations. Timelines in a specific matter depend on
-                the court and the facts.
-              </p>
+            <Reveal>
+              <HomeAboutBody />
             </Reveal>
-            <div className="grid grid--3" style={{ marginTop: "var(--s-8)" }}>
-              <Link className="card" href="/practices/bankruptcy">
-                <h3>Bankruptcy</h3>
-                <p>Petitions, defence, estate administration and asset realisation.</p>
-                <span className="card__foot link-arrow">
-                  Overview <span aria-hidden="true">&rarr;</span>
-                </span>
-              </Link>
-              <Link className="card" href="/practices/pkpu">
-                <h3>PKPU</h3>
-                <p>Composition plans, claim verification, creditor negotiation and voting.</p>
-                <span className="card__foot link-arrow">
-                  Overview <span aria-hidden="true">&rarr;</span>
-                </span>
-              </Link>
-              <Link className="card" href="/practices/debt-restructuring">
-                <h3>Debt restructuring</h3>
-                <p>Out-of-court workouts, standstills, security and refinancing.</p>
-                <span className="card__foot link-arrow">
-                  Overview <span aria-hidden="true">&rarr;</span>
-                </span>
-              </Link>
-            </div>
           </div>
         </section>
+
+        <div className="wrap"><hr className="hr" /></div>
+
+        <section className="section section--tight">
+          <div className="wrap">
+            <Reveal>
+              <HomeInsightsTeaser categories={CATEGORIES} />
+            </Reveal>
+          </div>
+        </section>
+
+        <div className="wrap"><hr className="hr" /></div>
 
         <section className="section">
           <div className="wrap">
@@ -255,6 +189,12 @@ export default async function HomePage() {
         </section>
 
         <CtaBand />
+
+        <section className="section section--tight">
+          <div className="wrap">
+            <HomeContactStrip office={FIRM.office} />
+          </div>
+        </section>
       </main>
     </>
   );

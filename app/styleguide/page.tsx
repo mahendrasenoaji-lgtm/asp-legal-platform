@@ -11,57 +11,55 @@ export const metadata: Metadata = {
 };
 
 const PALETTE: [string, string, string][] = [
-  ["Charcoal", "#111315", "Primary surface, hero, footer"],
-  ["Forest deep", "#0F2119", "Featured practice, CTA band"],
-  ["Forest", "#16352B", "Primary buttons, focus ring"],
-  ["Gold", "#B89B5E", "Accent: rules, marks, CTA fill"],
-  ["Gold deep", "#6E5A2C", "Gold as text on light surfaces"],
-  ["Ivory", "#F7F5EF", "Page background"],
-  ["White", "#FFFFFF", "Cards, inputs"],
-  ["Ink", "#1C1C1C", "Body text"],
+  ["Background", "#F3F2F2", "Page background (light theme)"],
+  ["Surface", "#EAE9E9", "Cards, raised panels (light theme)"],
+  ["Text", "#201F1D", "Body text (light theme)"],
+  ["Accent", "#B68235", "Rules, marks, outline buttons"],
+  ["Accent (text-safe)", "#7D5411", "Accent as body text on light surfaces"],
+  ["Accent 300 (kicker)", "#FACB8D", "Section kicker colour, dark theme"],
+  ["Background (dark)", "#201F1D", "Page background, dark theme"],
+  ["Surface (dark)", "#2D2B2B", "Cards, raised panels, dark theme"],
 ];
 
 const PAIRS: [string, string, string, string][] = [
-  ["Ink on ivory", "#1C1C1C", "#F7F5EF", "Body text"],
-  ["Ink muted on ivory", "#5B5F62", "#F7F5EF", "Secondary text"],
-  ["Gold on ivory", "#B89B5E", "#F7F5EF", "Text — expected to fail"],
-  ["Gold deep on ivory", "#6E5A2C", "#F7F5EF", "Accent text"],
-  ["On-dark on charcoal", "#EDEAE1", "#111315", "Body on dark"],
-  ["Gold on charcoal", "#B89B5E", "#111315", "Accent on dark"],
-  ["On-dark muted on charcoal", "#A9AEA8", "#111315", "Secondary on dark"],
-  ["White on forest", "#FFFFFF", "#16352B", "Primary button"],
-  ["Charcoal on gold", "#111315", "#B89B5E", "Gold button"],
+  ["Text on background", "#201F1D", "#F3F2F2", "Body text"],
+  ["Muted text on background", "#605D5D", "#F3F2F2", "Secondary text"],
+  ["Accent on background", "#B68235", "#F3F2F2", "Text — expected to fail"],
+  ["Accent (text-safe) on background", "#7D5411", "#F3F2F2", "Accent text"],
+  ["Text on background (dark)", "#F3F2F2", "#201F1D", "Body on dark theme"],
+  ["Accent on background (dark)", "#E1AD66", "#201F1D", "Accent text, dark theme"],
+  ["Surface text on accent", "#2D2B2B", "#B68235", "Solid gold button (.btn--gold)"],
 ];
 
 const SPECIMENS: [string, string, React.CSSProperties, string][] = [
   [
     "Display",
-    "Cormorant Garamond 500 / clamp 2.75–5.75rem",
+    "Cormorant Garamond 600 / clamp 2.75–5.75rem",
     { fontFamily: "var(--font-display)", fontSize: "var(--t-display)", lineHeight: "var(--lh-tight)", letterSpacing: "var(--ls-display)" },
     "Strategic counsel.",
   ],
-  ["H2", "Cormorant Garamond 500", { fontFamily: "var(--font-display)", fontSize: "var(--t-h2)" }, "Built for complex matters"],
+  ["H2", "Cormorant Garamond 600", { fontFamily: "var(--font-display)", fontSize: "var(--t-h2)" }, "Built for complex matters"],
   [
     "Lead",
-    "Inter 400 / 1.5",
+    "Lora 400 / 1.5",
     { fontFamily: "var(--font-body)", fontSize: "var(--t-lead)", lineHeight: "var(--lh-lead)" },
     "A PKPU runs on a statutory clock.",
   ],
   [
     "Body",
-    "Inter 400 / 1.68",
+    "Lora 400 / 1.68",
     { fontFamily: "var(--font-body)", fontSize: "var(--t-body)", lineHeight: "var(--lh-body)" },
     "The firm acts as receiver, as administrator, and as counsel to debtors and creditors.",
   ],
   [
-    "Docket",
-    "IBM Plex Mono 400 / 0.14em",
+    "Kicker",
+    "Lora 400 / 0.08em (formerly IBM Plex Mono — see tokens.css)",
     {
       fontFamily: "var(--font-docket)",
       fontSize: "var(--t-docket)",
       letterSpacing: "var(--ls-docket)",
       textTransform: "uppercase",
-      color: "var(--accent-text)",
+      color: "var(--kicker)",
     },
     "Commercial Court Jakarta",
   ],
@@ -75,11 +73,11 @@ export default function StyleguidePage() {
         <Breadcrumbs trail={[["Home", "/"], ["Design system", null]]} />
         <section className="section">
           <div className="wrap pagehead">
-            <p className="docket">Phase 2</p>
+            <p className="docket">Classical redesign</p>
             <h1>Design system.</h1>
             <p className="lead">
-              Tokens, type scale, contrast results and component states. Everything the frontend
-              is allowed to use.
+              Tokens, type scale, contrast results and component states for the &ldquo;Classical&rdquo;
+              direction (2026-08-24 redesign). Everything the frontend is allowed to use.
             </p>
           </div>
         </section>
@@ -165,10 +163,11 @@ export default function StyleguidePage() {
           <div className="wrap">
             <div className="section-head">
               <p className="docket">Typography</p>
-              <h2>Display, body, docket.</h2>
+              <h2>Display, body, kicker.</h2>
               <p>
-                Cormorant Garamond carries the voice, Inter carries the reading, IBM Plex Mono
-                carries the record — case numbers, courts, years, filters.
+                Cormorant Garamond carries the voice, Lora carries the reading — both serif,
+                deliberately. The former mono &ldquo;docket&rdquo; register (case numbers, courts,
+                years) is gone in this direction; kickers now set in the body serif, uppercase.
               </p>
             </div>
             {SPECIMENS.map(([name, spec, style, text]) => (

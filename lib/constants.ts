@@ -35,6 +35,19 @@ export const NAV: [string, string][] = [
   ["Careers", "/careers"],
 ];
 
+// Maps each NAV href above to its lib/i18n.ts DICT.nav key, so Header and
+// MobileDrawer can render the localized label while lib/constants.ts (and
+// the English label in NAV itself) stays the a11y-safe/build-time fallback.
+export const NAV_I18N_KEYS: Record<string, "about" | "people" | "practices" | "insights" | "cases" | "recognition" | "careers"> = {
+  "/about": "about",
+  "/people": "people",
+  "/practices": "practices",
+  "/insights": "insights",
+  "/cases": "cases",
+  "/recognition": "recognition",
+  "/careers": "careers",
+};
+
 // Flip when Phases 6 and 7 actually close (see CLAUDE.md, docs/07-qa.md §8).
 // Until then every page stays noindex and carries the status bar, same rule
 // the static prototype enforced.
