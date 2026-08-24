@@ -3,6 +3,44 @@
 Read this first when picking this project back up, especially on a different machine.
 Local Claude memory does not sync across machines; this file is the durable artifact.
 
+## Next steps (as of 2026-08-24, end of session)
+
+The "Classical" redesign is live at https://asp-legal-platform.vercel.app (branch
+`redesign/classical` merged to `main`, pushed, deployed — see the two entries below for
+the full story, including two real bugs found and fixed post-deploy: a WCAG contrast
+regression + a broken image-optimizer/password-gate interaction).
+
+Client asked what's left to close Phase 6 (Security) and Phase 7 (QA) that doesn't need
+ASP-provided infrastructure. Agreed on 7 items, worked through in this order:
+
+1. ✅ **Done** — Lighthouse + accessibility check (found and fixed 2 real contrast
+   regressions + a broken hero image; see the two entries below).
+2. ⏳ **Not started** — Wire the `/consultation` intake form to actually submit:
+   Postgres for the record, Vercel Blob for the file upload (avoids needing
+   S3+ClamAV/ASP-provided infra — Vercel Blob is self-serve via the same storage
+   marketplace the Neon DB came from). Client said this is next.
+3. ⏳ **Not started** — Identify the one remaining unhashed inline script blocking
+   `middleware.ts`'s CSP from switching `Content-Security-Policy-Report-Only` →
+   enforcing `Content-Security-Policy` (see `docs/06-security.md` §0 for the existing
+   writeup of why it's still Report-Only).
+4. ⏳ **Not started** — Check what Vercel's built-in Firewall (rate limiting, IP
+   blocking) already offers on this project's plan and whether it's worth turning on.
+5. ⏳ **Not started** — A basic automated security pass (security-headers checker,
+   `npm audit`, an OWASP ZAP baseline scan) against the live site — not a substitute
+   for a real third-party pentest, just a first-pass check. Note: `npm audit` was
+   already run once this session (while installing `sharp`) and surfaced multiple
+   known CVEs in `next@14.2.35` — the fix is a major-version bump to Next 16, a real
+   breaking-change decision, not touched yet.
+6. ⏳ **Not started** — Manual screen-reader (VoiceOver) + keyboard-nav check on the
+   new theme/language toggles specifically — they're new interactive elements the
+   existing a11y work never covered.
+7. ⏳ **Not started, and the biggest one** — Install and set up Payload CMS with
+   collections matching `db/schema.sql`. This is genuinely Phase 4 work, not Phase
+   6/7, and is a separate project in its own right — don't try to fold it into a
+   continuation of items 2–6.
+
+Resume by picking up at item 2, or wherever the next session is asked to start.
+
 ## 2026-08-24 (even later same day) — hero text/photo clash, and the real bug it exposed
 
 Client screenshotted the live Home hero: the headline sat directly over a face, hard to
