@@ -29,23 +29,76 @@ ASP-provided infrastructure. Agreed on 7 items, worked through in this order:
    `next build`, or a Next version with Node.js middleware (reads the hash file at
    request time instead of bundling it) — none of those fit in one session. Do not
    flip this to enforcing without addressing the cause; see the entry below first.
-4. ⏳ **Not started** — Check what Vercel's built-in Firewall (rate limiting, IP
-   blocking) already offers on this project's plan and whether it's worth turning on.
-5. ⏳ **Not started** — A basic automated security pass (security-headers checker,
-   `npm audit`, an OWASP ZAP baseline scan) against the live site — not a substitute
-   for a real third-party pentest, just a first-pass check. Note: `npm audit` was
-   already run once this session (while installing `sharp`) and surfaced multiple
-   known CVEs in `next@14.2.35` — the fix is a major-version bump to Next 16, a real
-   breaking-change decision, not touched yet.
-6. ⏳ **Not started** — Manual screen-reader (VoiceOver) + keyboard-nav check on the
-   new theme/language toggles specifically — they're new interactive elements the
-   existing a11y work never covered.
+4. ✅ **Done (2026-08-25)** — Vercel Firewall: published a rate-limit rule on
+   `/api/auth/login` (10 req/5min per IP, deny 15min over) — this is the site's
+   *only* gate (one shared password), so brute-force protection there matters most.
+   A second rule for `/api/consultation` (spam protection) hit a real plan limit —
+   Hobby allows exactly 1 active custom rate-limit rule — confirmed by the API
+   erroring specifically on the second `firewall rules add`, not a guess. Client
+   chose to accept that gap for now rather than build an app-level limiter (would
+   need Vercel KV/Upstash — new infra, more scope) or upgrade the plan. Automatic
+   DDoS/system-level mitigation is on by default regardless of plan (confirmed via
+   `vercel firewall system-mitigations` — only exposes pause/resume, meaning it's
+   already active).
+5. ✅ **Done (2026-08-25)** — Basic security pass against production. **OWASP ZAP
+   itself couldn't run** (no Docker on this machine, and installing it is its own
+   decision — flagging honestly rather than skipping silently); substituted a manual
+   pass covering what ZAP's baseline scan checks for:
+   - `npm audit`: 2 high-severity advisories, both resolving to the same root cause
+     (`next@14.2.35` — fix is `next@16`, a major-version breaking change, not made).
+     Triaged real exposure instead of treating the list as flat: this app has no
+     Server Actions, no `rewrites()`/`redirects()` in `next.config.mjs`, no
+     `images.remotePatterns`, no WebSocket usage, and uses hash-based CSP (not
+     nonce-based) — which rules out most of the listed CVEs' actual attack surface.
+     The one still worth weighing when the Next-16 decision happens:
+     GHSA-3g8h-86w9-wvmq (middleware/proxy redirect cache-poisoning) — this app's
+     `middleware.ts` does issue redirects (the password gate).
+   - Headers: confirmed `Secure; HttpOnly; SameSite=lax` on the session cookie; TLS
+     1.3 with a valid Vercel-managed cert; no `X-Powered-By` leak; `noindex,
+     nofollow` still correctly present.
+   - Real (low-risk) finding: statically-prerendered pages carry
+     `Access-Control-Allow-Origin: *` — confirmed this is Vercel's own CDN-edge
+     default for cached static HTML (not our code — dynamic routes like
+     `/api/consultation` don't have it), and confirmed it's not exploitable for
+     credentialed reads (no matching `Access-Control-Allow-Credentials`, and this
+     app's own `Cross-Origin-Resource-Policy: same-site` header — set in
+     `middleware.ts` — blocks cross-origin `fetch` reads regardless). Documented
+     rather than "fixed" because there's nothing to fix — it's expected platform
+     behavior for public static assets.
+   - Probed common sensitive paths (`.env`, `.git/config`, `db/schema.sql`,
+     source maps, etc.) — all correctly blocked by the password gate or 403/404,
+     nothing exposed. 404 and malformed-JSON-to-login responses don't leak stack
+     traces.
+6. ✅ **Done (2026-08-25)** — Couldn't literally drive macOS VoiceOver from this
+   environment, so substituted a rigorous keyboard-only + accessibility-tree pass
+   against production instead (same "substitute honestly, don't skip" approach as
+   item 5's ZAP gap). Tested both toggle instances (desktop header + mobile drawer,
+   390px viewport):
+   - Keyboard-only reachable via Tab, in the expected order after the nav links.
+   - Visible `:focus-visible` outline on every state (confirmed via zoomed
+     screenshots, not just reading the CSS).
+   - Both **Enter and Space** correctly activate the buttons (native `<button>`
+     behavior — no custom keydown handler to get wrong).
+   - `aria-current="true"/"false"` correctly flips per button and renders as a
+     literal string in the DOM (checked via JS, not assumed) — this is the
+     mechanism a screen reader relies on to announce the new state, and it updates
+     on the very element that already has focus, which VoiceOver/NVDA reliably
+     re-announce without needing a separate `aria-live` region.
+   - Mobile drawer: opened via keyboard (Enter on the Menu button), focus lands on
+     the first drawer link (existing focus-trap behavior), Tab reaches the drawer's
+     own Light/Dark/EN/ID instance correctly, Escape closes and returns focus to
+     the Menu button — confirmed the new toggles didn't regress the drawer's
+     pre-existing focus-trap/return-focus behavior.
+   No real defects found. Minor, non-blocking note: state changes rely on
+   AT re-announcing the focused element's own attribute change rather than an
+   explicit `aria-live` region — standard behavior, not flagged as a bug, but
+   worth a real VoiceOver/NVDA pass if this ever gets budget for one.
 7. ⏳ **Not started, and the biggest one** — Install and set up Payload CMS with
    collections matching `db/schema.sql`. This is genuinely Phase 4 work, not Phase
    6/7, and is a separate project in its own right — don't try to fold it into a
    continuation of items 2–6.
 
-Resume by picking up at item 4, or wherever the next session is asked to start.
+Resume by picking up at item 7, or wherever the next session is asked to start.
 
 ## 2026-08-25 — CSP enforcement attempt: found and root-caused a real bug (item 3)
 
