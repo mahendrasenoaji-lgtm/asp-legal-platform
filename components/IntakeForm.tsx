@@ -17,15 +17,17 @@ const MATTER_TYPES = [
 const ROLES = ["Company", "Director", "Shareholder", "Creditor", "Debtor", "Investor", "Individual", "Other"];
 const URGENCY = ["A petition has already been filed", "Within days", "Within weeks", "Planning ahead"];
 
-// Client-side validation only — same boundary the prototype drew. Wiring
-// this to a real server action (Zod validation, rate limit, virus scan,
-// persistence) is Phase 6 work against real infrastructure, not this port.
-// See docs/06-security.md §2.
+// Client-side validation is UX only — app/api/consultation/route.ts
+// re-validates everything server-side and never trusts this. Submits to
+// the leads table (db/schema.sql) via Vercel Blob for file storage; see
+// that route's comments for what's still missing (no malware scan, no
+// rate limiting).
 export function IntakeForm() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [note, setNote] = useState<string | null>(null);
+  const [status, setStatus] = useState<"idle" | "submitting" | "sent">("idle");
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
     const next: Record<string, string> = {};
@@ -42,9 +44,37 @@ export function IntakeForm() {
     });
 
     setErrors(next);
-    const ok = Object.keys(next).length === 0;
-    setNote(ok ? "Prototype only — no data was sent. Wiring the endpoint is Phase 6." : "Check the highlighted fields.");
-    if (firstInvalid) (firstInvalid as HTMLElement).focus();
+    if (Object.keys(next).length > 0) {
+      setNote("Check the highlighted fields.");
+      if (firstInvalid) (firstInvalid as HTMLElement).focus();
+      return;
+    }
+
+    setStatus("submitting");
+    setNote(null);
+    try {
+      const res = await fetch("/api/consultation", {
+        method: "POST",
+        body: new FormData(form),
+      });
+      const data = await res.json().catch(() => ({ ok: false }));
+      if (!res.ok || !data.ok) {
+        setStatus("idle");
+        if (data.fields) {
+          const fieldErrors: Record<string, string> = {};
+          for (const f of data.fields as string[]) fieldErrors[f] = "Please check this field.";
+          setErrors(fieldErrors);
+        }
+        setNote(data.error || "Something went wrong. Please try again.");
+        return;
+      }
+      setStatus("sent");
+      setNote("Enquiry sent — we'll be in touch shortly.");
+      form.reset();
+    } catch {
+      setStatus("idle");
+      setNote("Network error — please check your connection and try again.");
+    }
   }
 
   const opts = (xs: string[]) => xs.map((x) => <option key={x}>{x}</option>);
@@ -52,7 +82,7 @@ export function IntakeForm() {
 
   return (
     <form className="form" noValidate style={{ marginTop: "var(--s-7)" }} onSubmit={handleSubmit}>
-      <fieldset className="fieldset">
+      <fieldset className="fieldset" disabled={status === "submitting" || status === "sent"}>
         <div className="grid grid--2">
           <div className={`field${errField("name")}`}>
             <label htmlFor="name">
@@ -127,18 +157,22 @@ export function IntakeForm() {
         <div className="field">
           <label htmlFor="file">Supporting document</label>
           <input id="file" name="file" type="file" accept=".pdf,.doc,.docx" />
-          <span className="hint">PDF or Word, up to 10 MB. Files are scanned for malware and encrypted in transit.</span>
+          <span className="hint">PDF or Word, up to 10 MB. Encrypted in transit and storage.</span>
         </div>
       </fieldset>
       <div className="disclaimer">
         <p>{DISCLAIMER}</p>
       </div>
       <div>
-        <button className="btn btn--gold" type="submit">
-          Send enquiry
+        <button className="btn btn--gold" type="submit" disabled={status === "submitting"} aria-busy={status === "submitting"}>
+          {status === "submitting" ? "Sending…" : "Send enquiry"}
         </button>
         {note && (
-          <p style={{ marginTop: "var(--s-4)", fontSize: "var(--t-small)", color: "var(--fg-muted)" }}>
+          <p
+            role="status"
+            aria-live="polite"
+            style={{ marginTop: "var(--s-4)", fontSize: "var(--t-small)", color: "var(--fg-muted)" }}
+          >
             {note}
           </p>
         )}

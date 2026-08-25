@@ -3,7 +3,7 @@
 Read this first when picking this project back up, especially on a different machine.
 Local Claude memory does not sync across machines; this file is the durable artifact.
 
-## Next steps (as of 2026-08-24, end of session)
+## Next steps (as of 2026-08-25, mid-session — item 2 done, see entry below)
 
 The "Classical" redesign is live at https://asp-legal-platform.vercel.app (branch
 `redesign/classical` merged to `main`, pushed, deployed — see the two entries below for
@@ -15,10 +15,8 @@ ASP-provided infrastructure. Agreed on 7 items, worked through in this order:
 
 1. ✅ **Done** — Lighthouse + accessibility check (found and fixed 2 real contrast
    regressions + a broken hero image; see the two entries below).
-2. ⏳ **Not started** — Wire the `/consultation` intake form to actually submit:
-   Postgres for the record, Vercel Blob for the file upload (avoids needing
-   S3+ClamAV/ASP-provided infra — Vercel Blob is self-serve via the same storage
-   marketplace the Neon DB came from). Client said this is next.
+2. ✅ **Done (2026-08-25)** — `/consultation` intake form wired to a real endpoint;
+   see the dated entry below for detail.
 3. ⏳ **Not started** — Identify the one remaining unhashed inline script blocking
    `middleware.ts`'s CSP from switching `Content-Security-Policy-Report-Only` →
    enforcing `Content-Security-Policy` (see `docs/06-security.md` §0 for the existing
@@ -39,7 +37,49 @@ ASP-provided infrastructure. Agreed on 7 items, worked through in this order:
    6/7, and is a separate project in its own right — don't try to fold it into a
    continuation of items 2–6.
 
-Resume by picking up at item 2, or wherever the next session is asked to start.
+Resume by picking up at item 3, or wherever the next session is asked to start.
+
+## 2026-08-25 — intake form wired for real (item 2)
+
+`components/IntakeForm.tsx` previously did client-side-only validation and always
+showed "Prototype only — no data was sent." Wired it to a real backend:
+
+- **`db/schema.sql` already had a `leads` table shaped exactly for this** (`file_key`,
+  `file_scan_status`, `ip_hash`, `lead_status` enum, `purge_after`) — confirmed live in
+  Neon via `psql \d leads` before writing anything. This wasn't new schema work, just
+  the first thing to actually write to it.
+- **New**: `app/api/consultation/route.ts` (Node runtime, not Edge — needs `pg` +
+  `node:crypto`). Re-validates every required field server-side (client `required` is
+  UX only), hashes the requester IP before storing it (`ip_hash`, never raw), and
+  inserts into `leads`.
+- **File upload**: chose **Vercel Blob (private access)** over S3+ClamAV specifically
+  to avoid needing ASP-provided infra — same self-serve storage marketplace the Neon DB
+  came from. Created via `npx vercel blob create-store asp-legal-platform-uploads
+  --access private --yes`, which auto-linked `BLOB_READ_WRITE_TOKEN` into Production/
+  Preview/Development env vars. `@vercel/blob@2.8.0` added as a real dependency.
+- **Honesty fix, not a feature**: there is no malware-scanning pipeline (that was the
+  ClamAV part of the S3 plan, deliberately skipped). `file_scan_status` is set to
+  `'pending'` and *stays* pending — it means "stored, never scanned," not "scan in
+  progress." More importantly, `IntakeForm.tsx`'s hint text used to claim **"Files are
+  scanned for malware"** — that was already false before this session (nothing ever
+  scanned anything) and would have stayed a real, live lie on the production site if
+  not caught here. Changed the copy to "Encrypted in transit and storage" instead,
+  which is actually true (Blob private access + TLS).
+- Added `role="status" aria-live="polite"` on the result message and disabled the
+  fieldset while submitting/after success, so screen-reader users and repeat-click
+  users both get correct behavior — small, but new interactive states deserve it same
+  as the theme/language toggles did.
+- **Verified end-to-end against production infra, not mocked**: built (`npm run
+  build`, passes), ran `next start` locally against the real Neon DB, logged in via
+  `/api/auth/login`, then POSTed a real multipart request through
+  `/api/consultation` with a test PDF attached — confirmed `200 {"ok":true}`, confirmed
+  the row landed in Postgres (`psql` SELECT) with the correct `file_key`/
+  `file_scan_status`, confirmed a missing-fields request correctly 400s. Deleted the
+  test lead row and the test blob file afterward (`vercel blob del`) — no test data
+  left in production.
+- **Not done, flagging honestly**: no rate limiting on this endpoint yet (a spam bot
+  could flood `leads` right now) — that's item 4 (Vercel Firewall) territory, tracked
+  separately, not silently skipped.
 
 ## 2026-08-24 (even later same day) — hero text/photo clash, and the real bug it exposed
 
