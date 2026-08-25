@@ -52,22 +52,60 @@ async function gateCheck(request: NextRequest): Promise<NextResponse | null> {
 // pass, and flagged rather than silently worked around.
 //
 // script-src is shipped as Content-Security-Policy-Report-Only, not an
-// enforcing Content-Security-Policy, and that is deliberate, not a
-// half-measure: testing the hash approach against a real browser (not just
-// curl) found it fixes 7 of 8 previously-blocked inline scripts, but one
-// residual violation remains — something Next's RSC hydration/streaming
-// machinery injects that isn't present in the static HTML this script's
-// postbuild step scans, so it can't be hashed ahead of time. Enforcing
-// anyway risked shipping a CSP that intermittently breaks hydration for
-// real visitors (confirmed: it triggered React error #423 — "switched to
-// client rendering" — when that one script was blocked). Report-only is
-// the standard, explicitly-recommended way to roll out a new CSP: it still
-// sends the header and still lets you see real violations, without an
-// unverified edge case taking down the site. Switch back to
-// 'Content-Security-Policy' once that last inline-script source is
-// identified and either hashed or reasoned about, and once there's a
-// report-uri/report-to endpoint (Phase 6/8) to actually collect violations
-// from real traffic rather than one local Lighthouse run.
+// enforcing Content-Security-Policy. 2026-08-25: fully root-caused why
+// (previously this comment only described the symptom) — and it is a real
+// blocker, not a half-measure, so don't flip this to enforcing without
+// fixing the cause first.
+//
+// scripts/generate-csp-hashes.mjs's postbuild step runs `next build`
+// TWICE: once to produce real page HTML to hash, then again so middleware
+// (which statically imports the hash file — Edge Runtime, no `fs`, so it
+// can't read the file at request time) actually bundles the fresh hashes.
+// The two builds are supposed to produce byte-identical HTML for the same
+// source, but don't:
+//   1. Next's default generateBuildId returns a fresh random string per
+//      `next build` invocation, and that buildId is embedded in every
+//      route's `self.__next_f.push(...)` RSC hydration bootstrap script.
+//      Fixed: next.config.mjs now pins buildId to the git commit
+//      (VERCEL_GIT_COMMIT_SHA in prod, `git rev-parse HEAD` locally), so
+//      both invocations in one postbuild chain agree.
+//   2. Deeper, NOT fixed: pages whose content depends on an async
+//      Postgres query (i.e. almost every route — /people/[slug],
+//      /practices/[slug], /recognition/[slug], and even list pages)
+//      showed *different* internal RSC client-reference IDs and different
+//      streaming-chunk numbering/ordering between the two builds, for
+//      identical source and identical DB rows. Root cause: React's Flight
+//      streaming writer numbers chunks as their promises resolve, and
+//      query resolution order against a *remote* database (Neon) isn't
+//      guaranteed identical run to run — build #2 can legitimately
+//      interleave differently than build #1 even with identical source
+//      and identical rows. Tested disabling webpack's persistent cache
+//      (`config.cache = false`) as a candidate fix — made it worse
+//      (more mismatches, not fewer), which rules out build-tooling
+//      caching as the cause and confirms it's query-timing-driven.
+// Verified directly (not guessed): built the site fresh, diffed inline
+// <script> content between the two `next build` passes byte-for-byte,
+// found script content genuinely differs. A live browser test then
+// confirmed real impact — /login (whose Suspense fallback is `null`)
+// renders a **completely blank, unusable page** under enforcing CSP,
+// because its one hydration script fails the hash check and there's no
+// static fallback content to show while broken. On other routes the
+// failure is silent (React falls back to client rendering, the static
+// HTML still shows *something*) — which is exactly why this went
+// undetected before.
+//
+// This needs either: query results cached/memoized so repeat SSG builds
+// see byte-identical timing, a build pipeline that doesn't require a
+// second `next build` to refresh middleware (Node.js middleware runtime
+// would let this read the hash file from disk at request time instead of
+// bundling it — not available until a Next version newer than this app's
+// 14.2.35, which ties into the already-tracked Next-major-version-bump
+// item), or a different CSP strategy for routes with DB-dependent
+// content. None of those are a same-session fix. Report-only stays the
+// right choice until one lands — it still sends the header and still
+// surfaces violations, without risking a repeat of the /login blank-page
+// failure for a real visitor. See PROGRESS.md's 2026-08-25 entry for the
+// full investigation.
 //
 // HSTS is skipped on localhost/127.0.0.1: Chrome caches HSTS per-host, and
 // a stray forced-HTTPS redirect on localhost breaks `npm run dev`/`start`

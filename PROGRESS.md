@@ -17,10 +17,18 @@ ASP-provided infrastructure. Agreed on 7 items, worked through in this order:
    regressions + a broken hero image; see the two entries below).
 2. ✅ **Done (2026-08-25)** — `/consultation` intake form wired to a real endpoint;
    see the dated entry below for detail.
-3. ⏳ **Not started** — Identify the one remaining unhashed inline script blocking
-   `middleware.ts`'s CSP from switching `Content-Security-Policy-Report-Only` →
-   enforcing `Content-Security-Policy` (see `docs/06-security.md` §0 for the existing
-   writeup of why it's still Report-Only).
+3. 🔶 **Root-caused, not resolved (2026-08-25)** — the CSP stays Report-Only, on
+   purpose, not by default. Full investigation in `middleware.ts`'s comment and the
+   dated entry below: the postbuild pipeline's second `next build` produces
+   HTML that isn't byte-identical to the first build's (for any page with
+   DB-driven content — buildId is now pinned and fixed, but RSC streaming-chunk
+   order/IDs still drift with Postgres query timing), so the hash file middleware
+   ships with doesn't always match what's actually served. **Confirmed this would
+   have broken `/login` completely (blank page, no fallback) if enforced.** Needs
+   either query-timing determinism, a build pipeline that doesn't require a second
+   `next build`, or a Next version with Node.js middleware (reads the hash file at
+   request time instead of bundling it) — none of those fit in one session. Do not
+   flip this to enforcing without addressing the cause; see the entry below first.
 4. ⏳ **Not started** — Check what Vercel's built-in Firewall (rate limiting, IP
    blocking) already offers on this project's plan and whether it's worth turning on.
 5. ⏳ **Not started** — A basic automated security pass (security-headers checker,
@@ -37,7 +45,63 @@ ASP-provided infrastructure. Agreed on 7 items, worked through in this order:
    6/7, and is a separate project in its own right — don't try to fold it into a
    continuation of items 2–6.
 
-Resume by picking up at item 3, or wherever the next session is asked to start.
+Resume by picking up at item 4, or wherever the next session is asked to start.
+
+## 2026-08-25 — CSP enforcement attempt: found and root-caused a real bug (item 3)
+
+Tried to flip `middleware.ts`'s CSP from Report-Only to enforcing. Verified first with
+two independent live methods against production (a `securitypolicyviolation` event
+listener clicked through every top-level route, a dynamic detail page, both toggles,
+and several client-side navigations; separately, Lighthouse's `csp-xss`/
+`errors-in-console` audits against six routes) — both found **zero** violations, so
+flipped the header and rebuilt locally to double-check before deploying.
+
+**Good thing it was checked locally first.** `/login` rendered as a completely blank,
+unusable page under enforcing CSP. Root-caused it properly rather than reverting blind:
+
+1. Extracted every inline `<script>` from the actual served HTML, hashed each one,
+   and diffed against the CSP header's own allow-list — found one hydration script
+   (`self.__next_f.push(...)`, React's RSC bootstrap payload) whose hash didn't
+   match. `/login`'s form is `<Suspense fallback={null}>` (it uses `useSearchParams`,
+   which forces client-only rendering for that boundary) — with no static fallback
+   content and that one script blocked, the page had literally nothing to show.
+2. Traced this back to `scripts/generate-csp-hashes.mjs`'s postbuild pipeline, which
+   runs `next build` **twice** (build #1 to get real HTML to hash from, build #2 so
+   middleware — Edge Runtime, no `fs`, must statically import the hash file — actually
+   bundles the fresh hashes). The two builds are assumed to produce identical HTML.
+   They don't:
+   - **Fixed**: Next's default `generateBuildId` returns a new random string per
+     invocation, and that buildId is embedded in the RSC bootstrap script on every
+     route. `next.config.mjs` now pins it to the git commit
+     (`VERCEL_GIT_COMMIT_SHA` in prod, `git rev-parse HEAD` locally) — confirmed via
+     `.next/BUILD_ID` that both builds now agree, and confirmed by hash-diffing that
+     this specific mismatch class is gone.
+   - **Not fixed, deeper**: even with buildId pinned, pages with DB-driven content
+     (`/people/[slug]`, `/practices/[slug]`, `/recognition/[slug]`, and list pages —
+     effectively most of the site) still showed different RSC client-reference IDs
+     and different streaming-chunk ordering between the two builds, for identical
+     source and identical database rows. Confirmed by snapshotting both builds'
+     `.next/server/app` output separately and diffing script content directly (not
+     inferred): e.g. the same chunk file got labelled `I[4561,...]` in build #1 and
+     `I[2972,...]` in build #2. Root cause: React's Flight streaming writer numbers
+     chunks as their backing promises resolve, and this app queries a *remote*
+     Postgres (Neon), so resolution order/timing isn't guaranteed identical between
+     two separate build runs. Tested disabling webpack's persistent cache
+     (`config.cache = false`) as a candidate fix — made it *worse* (more mismatched
+     routes, not fewer), which rules out build-tooling caching as the cause.
+3. Reverted the CSP header to Report-Only (kept the buildId pin — genuine
+   reproducible-builds improvement independent of this). Wrote the full diagnosis
+   into `middleware.ts`'s comment so the next session doesn't have to re-derive it.
+
+**What would actually fix this**, none of which fits in a single session: make Postgres
+query resolution deterministic/cached during SSG builds; restructure the build so
+middleware doesn't need a second `next build` to see fresh hashes (Node.js middleware
+runtime would let it `fs.readFileSync` the hash file at request time instead of
+bundling it — not available in this app's Next 14.2.35, ties into the already-tracked
+Next-major-version-bump decision under item 5); or a different CSP strategy for
+DB-dependent routes specifically. This is a real, previously-undiagnosed bug (the
+original comment only described a symptom, "one residual violation," without knowing
+why) — worth treating as its own follow-up, not a quick fix to force through.
 
 ## 2026-08-25 — intake form wired for real (item 2)
 
