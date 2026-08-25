@@ -3,7 +3,7 @@
 Read this first when picking this project back up, especially on a different machine.
 Local Claude memory does not sync across machines; this file is the durable artifact.
 
-## Next steps (as of 2026-08-25, mid-session — item 2 done, see entry below)
+## Next steps (as of 2026-08-25, end of session — items 1–6 done, item 7 scoped/blocked)
 
 The "Classical" redesign is live at https://asp-legal-platform.vercel.app (branch
 `redesign/classical` merged to `main`, pushed, deployed — see the two entries below for
@@ -93,12 +93,33 @@ ASP-provided infrastructure. Agreed on 7 items, worked through in this order:
    AT re-announcing the focused element's own attribute change rather than an
    explicit `aria-live` region — standard behavior, not flagged as a bug, but
    worth a real VoiceOver/NVDA pass if this ever gets budget for one.
-7. ⏳ **Not started, and the biggest one** — Install and set up Payload CMS with
-   collections matching `db/schema.sql`. This is genuinely Phase 4 work, not Phase
-   6/7, and is a separate project in its own right — don't try to fold it into a
-   continuation of items 2–6.
+7. 🔴 **Checked, genuinely blocked (2026-08-25), not a soft "biggest item" anymore**
+   — confirmed via Payload's own docs before touching anything: **Payload CMS
+   requires Next.js 15.2.9+ (or 16.2.6+)**. This app runs **Next 14.2.35**. Payload
+   cannot be installed at all until that upgrade happens — not a preference, a hard
+   peer-dependency floor. This isn't a new, separate task from item 5's flagged
+   `npm audit` finding (Next 14.2.35 CVEs, fix = major bump) — it's the same
+   decision, and item 7 is the strongest reason yet to actually make it, not just
+   another item pointing at it.
+   Other things confirmed while scoping (so the next session can start executing,
+   not re-research): Payload 3.x embeds directly *inside* the Next.js app (shares
+   routes/build, no separate admin-panel hosting to stand up — simpler than the
+   original plan assumed). Its Postgres adapter is Drizzle-based and, by default,
+   wants to *manage* the schema/migrations itself — using it against this app's
+   already-live, hand-crafted `db/schema.sql` (custom ENUMs, the
+   `assert_practice_has_lead()` trigger, the `firm_settings` singleton pattern, 4
+   integrity guards) needs a deliberate mapping strategy, not the default flow;
+   that's a real design decision for that future session, not this one.
+   **Recommendation, unchanged from the original agreement**: do the Next 14→15/16
+   upgrade and Payload install together, as their own dedicated session — bumping
+   Next blind (for CVEs alone) and then hitting this same Payload requirement later
+   would mean redoing verification twice. Not attempted here; forcing it through
+   today risks breaking the live site for a task that was never going to finish in
+   one sitting anyway.
 
-Resume by picking up at item 7, or wherever the next session is asked to start.
+Resume by picking up at item 7 (Next.js major-version upgrade + Payload CMS, see
+above — this is the one substantive item left), or wherever the next session is
+asked to start. Items 1–6 are genuinely done.
 
 ## 2026-08-25 — CSP enforcement attempt: found and root-caused a real bug (item 3)
 
