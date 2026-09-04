@@ -113,8 +113,12 @@ async function gateCheck(request: NextRequest): Promise<NextResponse | null> {
 // every other host, matching config/security-headers.js's production value.
 
 export async function middleware(request: NextRequest) {
-  const gated = await gateCheck(request);
-  if (gated) return gated;
+  // Password gate disabled — site is public now. gateCheck() above is left
+  // defined, untouched, for easy restoration: uncomment the two lines below
+  // to re-enable it. Referenced as a no-op here so it isn't flagged unused.
+  void gateCheck;
+  // const gated = await gateCheck(request);
+  // if (gated) return gated;
 
   const isLocalhost = ["localhost", "127.0.0.1"].includes(request.nextUrl.hostname);
   const routeHashes = CSP_SCRIPT_HASHES[request.nextUrl.pathname] ?? CSP_COMMON_SCRIPT_HASHES;
