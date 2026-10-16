@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import type { Firm, InsightCategory } from "../lib/types";
+import type { InsightCategory } from "../lib/types";
 import { useLang } from "./LanguageProvider";
 
 /** Hero eyebrow/h1/sub/CTAs. Buttons use --on-photo variants since the hero
