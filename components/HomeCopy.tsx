@@ -90,25 +90,3 @@ export function HomeInsightsTeaser({ categories }: { categories: InsightCategory
     </>
   );
 }
-
-export function HomeContactStrip({ office }: { office: Firm["office"] }) {
-  return (
-    <div className="grid grid--3">
-      <p>
-        {office.name}
-        <br />
-        {office.street}
-        <br />
-        {office.district}
-        <br />
-        {office.city} {office.postal_code}
-      </p>
-      <p>
-        <a href={`tel:${office.phone.replace(/\s/g, "")}`}>{office.phone}</a>
-      </p>
-      <p>
-        <a href={`mailto:${office.email}`}>{office.email}</a>
-      </p>
-    </div>
-  );
-}

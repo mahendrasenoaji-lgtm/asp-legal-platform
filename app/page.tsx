@@ -9,7 +9,6 @@ import { AwardRow } from "../components/AwardRow";
 import {
   HomeAboutBody,
   HomeAboutHead,
-  HomeContactStrip,
   HomeCopy,
   HomeGroupLabel,
   HomeInsightsTeaser,
@@ -203,12 +202,6 @@ export default async function HomePage() {
         </section>
 
         <CtaBand />
-
-        <section className="section section--tight">
-          <div className="wrap">
-            <HomeContactStrip office={FIRM.office} />
-          </div>
-        </section>
       </main>
     </>
   );
