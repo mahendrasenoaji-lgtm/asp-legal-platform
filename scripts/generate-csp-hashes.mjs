@@ -80,25 +80,30 @@ if (!existsSync(APP_DIR)) {
 }
 
 // Where the prerendered HTML lives. Locally (and on Next 14) it is
-// .next/server/app/<route>.html. On Vercel with Next 16, the Vercel build
-// adapter (onBuildComplete) moves it into the Build Output API tree before
-// postbuild runs: .vercel/output/functions/<route>.prerender-fallback.html
-// and .vercel/output/static/<route>.html. Read every location; the first
-// one that has a route wins.
+// .next/server/app/<route>.html. On Vercel with Next 16 (Vercel build
+// adapter), it is .next/server/route-cache/APP_PAGE/<hash>/$/<route>.html
+// instead (found 2026-10-26 from this script's own diagnostic output).
+// Read both; the first one that has a route wins.
+const ROUTE_CACHE_DIR = path.join(ROOT, ".next/server/route-cache/APP_PAGE");
+const routeFromCacheFile = (file) => {
+  const rel = path.relative(ROUTE_CACHE_DIR, file).replace(/\\/g, "/");
+  const i = rel.indexOf("/$/");
+  if (i === -1) return rel.endsWith("/$.html") ? "/" : null;
+  const r = rel.slice(i + 3).replace(/\.html$/, "").replace(/(^|\/)index$/, "");
+  return "/" + r;
+};
 const SOURCES = [
-  { dir: APP_DIR, suffix: ".html" },
-  { dir: path.join(ROOT, ".vercel/output/functions"), suffix: ".prerender-fallback.html" },
-  { dir: path.join(ROOT, ".vercel/output/static"), suffix: ".html" },
+  { dir: APP_DIR, route: (f) => routeFromFile(f, APP_DIR) },
+  { dir: ROUTE_CACHE_DIR, route: routeFromCacheFile },
 ];
 const IGNORED_ROUTES = new Set(["/_global-error", "/404", "/500"]);
 
 const routeFiles = new Map(); // route -> file
-for (const { dir, suffix } of SOURCES) {
+for (const { dir, route: toRoute } of SOURCES) {
   let found = 0;
   for (const file of findHtmlFiles(dir)) {
-    if (!file.endsWith(suffix)) continue;
-    const route = routeFromFile(file, dir, suffix);
-    if (IGNORED_ROUTES.has(route) || routeFiles.has(route)) continue;
+    const route = toRoute(file);
+    if (!route || IGNORED_ROUTES.has(route) || routeFiles.has(route)) continue;
     routeFiles.set(route, file);
     found++;
   }
