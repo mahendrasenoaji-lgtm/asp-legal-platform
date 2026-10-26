@@ -11,8 +11,8 @@ export async function generateStaticParams() {
   return lawyers.map((l) => ({ slug: l.slug }));
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const lawyer = await getLawyer(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const lawyer = await getLawyer((await params).slug);
   if (!lawyer) return {};
   return {
     title: lawyer.name,
@@ -20,8 +20,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default async function LawyerPage({ params }: { params: { slug: string } }) {
-  const lawyer = await getLawyer(params.slug);
+export default async function LawyerPage({ params }: { params: Promise<{ slug: string }> }) {
+  const lawyer = await getLawyer((await params).slug);
   if (!lawyer) notFound();
 
   const FIRM = await getFirm();

@@ -12,14 +12,14 @@ export async function generateStaticParams() {
   return practices.map((p) => ({ slug: p.slug }));
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const practice = await getPractice(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const practice = await getPractice((await params).slug);
   if (!practice) return {};
   return { title: practice.name_en, description: `${practice.name_en} practice at ASP.` };
 }
 
-export default async function PracticePage({ params }: { params: { slug: string } }) {
-  const practice = await getPractice(params.slug);
+export default async function PracticePage({ params }: { params: Promise<{ slug: string }> }) {
+  const practice = await getPractice((await params).slug);
   if (!practice) notFound();
 
   const PRACTICES = await getPractices();

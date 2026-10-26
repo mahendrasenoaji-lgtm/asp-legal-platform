@@ -11,8 +11,8 @@ export async function generateStaticParams() {
   return awards.map((a) => ({ slug: a.slug }));
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const award = await getAward(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const award = await getAward((await params).slug);
   if (!award) return {};
   return {
     title: award.title,
@@ -20,8 +20,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default async function AwardPage({ params }: { params: { slug: string } }) {
-  const award = await getAward(params.slug);
+export default async function AwardPage({ params }: { params: Promise<{ slug: string }> }) {
+  const award = await getAward((await params).slug);
   if (!award) notFound();
 
   return (

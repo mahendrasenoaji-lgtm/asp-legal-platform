@@ -1,10 +1,13 @@
-@tailwind base;
-@tailwind components;
-
 /* Design tokens (Phase 2, copied unchanged) and component styles (Phase 2/3,
    ported unchanged from the static prototype) — see tailwind.config.ts for
-   why preflight is off and how these tokens are mirrored into Tailwind. */
+   why preflight is off and how these tokens are mirrored into Tailwind.
+   CSS requires @import before any other rule (Turbopack, the Next 16 default
+   bundler, enforces it). With preflight off, base/components only emit --tw-*
+   variables, so placing them after these imports does not change the cascade. */
 @import "./tokens.css";
 @import "./main.css";
+
+@tailwind base;
+@tailwind components;
 
 @tailwind utilities;
