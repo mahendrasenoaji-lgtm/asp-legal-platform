@@ -64,9 +64,9 @@ function findHtmlFiles(dir) {
   return out;
 }
 
-function routeFromFile(file) {
-  let rel = path.relative(APP_DIR, file).replace(/\\/g, "/");
-  rel = rel.replace(/\.html$/, "");
+function routeFromFile(file, baseDir, suffix = ".html") {
+  let rel = path.relative(baseDir, file).replace(/\\/g, "/");
+  rel = rel.slice(0, -suffix.length);
   if (rel === "index" || rel === "") return "/";
   rel = rel.replace(/\/index$/, "");
   return "/" + rel;
@@ -79,7 +79,33 @@ if (!existsSync(APP_DIR)) {
   process.exit(1);
 }
 
-const files = findHtmlFiles(APP_DIR);
+// Where the prerendered HTML lives. Locally (and on Next 14) it is
+// .next/server/app/<route>.html. On Vercel with Next 16, the Vercel build
+// adapter (onBuildComplete) moves it into the Build Output API tree before
+// postbuild runs: .vercel/output/functions/<route>.prerender-fallback.html
+// and .vercel/output/static/<route>.html. Read every location; the first
+// one that has a route wins.
+const SOURCES = [
+  { dir: APP_DIR, suffix: ".html" },
+  { dir: path.join(ROOT, ".vercel/output/functions"), suffix: ".prerender-fallback.html" },
+  { dir: path.join(ROOT, ".vercel/output/static"), suffix: ".html" },
+];
+const IGNORED_ROUTES = new Set(["/_global-error", "/404", "/500"]);
+
+const routeFiles = new Map(); // route -> file
+for (const { dir, suffix } of SOURCES) {
+  let found = 0;
+  for (const file of findHtmlFiles(dir)) {
+    if (!file.endsWith(suffix)) continue;
+    const route = routeFromFile(file, dir, suffix);
+    if (IGNORED_ROUTES.has(route) || routeFiles.has(route)) continue;
+    routeFiles.set(route, file);
+    found++;
+  }
+  console.log(`generate-csp-hashes: ${found} routes from ${path.relative(ROOT, dir)}`);
+}
+const files = [...routeFiles.values()];
+const routeOf = new Map([...routeFiles].map(([route, file]) => [file, route]));
 const routeHashes = {};
 const countAll = new Map(); // hash -> how many routes use it (for the fallback set)
 
@@ -94,7 +120,7 @@ for (const file of files) {
     hashes.add(hash);
     countAll.set(hash, (countAll.get(hash) ?? 0) + 1);
   }
-  routeHashes[routeFromFile(file)] = [...hashes];
+  routeHashes[routeOf.get(file)] = [...hashes];
 }
 
 // Fallback for routes not in the static map (e.g. Next's own error overlay

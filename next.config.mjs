@@ -36,7 +36,6 @@ const nextConfig = {
   // work once Indonesian copy actually exists (see docs/03-frontend.md §4
   // and CLAUDE.md — bilingual). Do not add an empty /id tree ahead of it.
   reactStrictMode: true,
-  eslint: { ignoreDuringBuilds: true },
   generateBuildId: async () => stableBuildId(),
 };
 
