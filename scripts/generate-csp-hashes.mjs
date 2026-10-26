@@ -107,9 +107,11 @@ for (const { dir, suffix } of SOURCES) {
 if (routeFiles.size === 0) {
   // Diagnostic: show where prerendered HTML actually is, so a layout change
   // in a future Next/Vercel release is visible in the build log.
-  const seen = findHtmlFiles(ROOT).filter((f) => !f.includes("node_modules"));
-  console.warn(`generate-csp-hashes: no route HTML found; ${seen.length} .html files under the project:`);
-  for (const f of seen.slice(0, 15)) console.warn("  " + path.relative(ROOT, f));
+  const seen = findHtmlFiles(ROOT)
+    .map((f) => path.relative(ROOT, f))
+    .filter((f) => !/^(node_modules|prototype|docs)\//.test(f) && !f.includes("/node_modules/"));
+  console.warn(`generate-csp-hashes: no route HTML found; ${seen.length} build .html files:`);
+  for (const f of seen.slice(0, 15)) console.warn("  " + f);
   for (const d of [".next", ".next/server", ".vercel", ".vercel/output"]) {
     try {
       console.warn(`  ls ${d}: ${readdirSync(path.join(ROOT, d)).join(" ")}`);
