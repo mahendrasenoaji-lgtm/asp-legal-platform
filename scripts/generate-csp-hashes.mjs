@@ -104,6 +104,20 @@ for (const { dir, suffix } of SOURCES) {
   }
   console.log(`generate-csp-hashes: ${found} routes from ${path.relative(ROOT, dir)}`);
 }
+if (routeFiles.size === 0) {
+  // Diagnostic: show where prerendered HTML actually is, so a layout change
+  // in a future Next/Vercel release is visible in the build log.
+  const seen = findHtmlFiles(ROOT).filter((f) => !f.includes("node_modules"));
+  console.warn(`generate-csp-hashes: no route HTML found; ${seen.length} .html files under the project:`);
+  for (const f of seen.slice(0, 15)) console.warn("  " + path.relative(ROOT, f));
+  for (const d of [".next", ".next/server", ".vercel", ".vercel/output"]) {
+    try {
+      console.warn(`  ls ${d}: ${readdirSync(path.join(ROOT, d)).join(" ")}`);
+    } catch {
+      console.warn(`  ls ${d}: (missing)`);
+    }
+  }
+}
 const files = [...routeFiles.values()];
 const routeOf = new Map([...routeFiles].map(([route, file]) => [file, route]));
 const routeHashes = {};
